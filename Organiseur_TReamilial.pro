@@ -20,8 +20,11 @@ SOURCES += \
     ihm_gestion_des_taches.cpp \
     main.cpp \
     mainwindow.cpp \
+    nondatedtask.cpp \
+    normaltask.cpp \
+    periodicsubtask.cpp \
     periodictask.cpp \
-    task.cpp \
+    reminder.cpp \
     taskbutton.cpp \
     taskmanager.cpp
 
@@ -29,8 +32,11 @@ HEADERS += \
     databasehandler.h \
     ihm_gestion_des_taches.h \
     mainwindow.h \
+    nondatedtask.h \
+    normaltask.h \
+    periodicsubtask.h \
     periodictask.h \
-    task.h \
+    reminder.h \
     taskbutton.h \
     taskmanager.h
 

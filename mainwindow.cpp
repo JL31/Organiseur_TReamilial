@@ -11,10 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
                        QMainWindow(parent),
                        ui(new Ui::MainWindow),
                        tm(new TaskManager()),
-                       m_task_periodicity(new int(0)),
                        m_data_from_DB(new map<string, string>),
                        m_current_date(new QDate(QDate::currentDate())),
-                       m_current_week_number(new int(m_current_date->weekNumber())),
                        m_current_week_tasks(new vector<int>),
                        m_current_week_periodic_tasks(new vector<int>),
                        m_layout_taches_lundi(new QVBoxLayout()),
@@ -54,10 +52,12 @@ MainWindow::MainWindow(QWidget *parent) :
     days_layout_definition();
     actions_connection();
     calendar_week_update();
-    important_tasks_update();
-    reminder_tasks_update();
-    current_week_tasks_update();
-    current_week_periodic_task_update();
+    tm->load_current_week_data(m_current_date->year(), m_current_date->weekNumber());
+    tasks_update();
+    //important_tasks_update();
+    //reminder_tasks_update();
+    //current_week_tasks_update();
+    // current_week_periodic_task_update();
 }
 
 // Destructeur
@@ -66,9 +66,7 @@ MainWindow::~MainWindow()
     delete ui;
     delete tm;
     delete ihm_gdt;
-    delete m_task_periodicity;
     delete m_data_from_DB;
-    delete m_current_week_number;
     delete m_current_week_tasks,
     delete m_sa_list;
     delete m_selected_task_number;
@@ -76,9 +74,7 @@ MainWindow::~MainWindow()
     ui = nullptr;
     tm = nullptr;
     ihm_gdt = nullptr;
-    m_task_periodicity = nullptr;
     m_data_from_DB = nullptr;
-    m_current_week_number = nullptr;
     m_current_week_tasks = nullptr;
     m_sa_list = nullptr;
     m_selected_task_number = nullptr;
@@ -174,14 +170,104 @@ void MainWindow::calendar_week_update()
     day_and_month_values = nullptr;
 }
 
-// Code de la méthode de chargement des tâches de la semaine courante
+
+// Method to update the tasks of the several parts of the HMI
+void MainWindow::tasks_update()
+{
+    non_dated_tasks_update();
+    important_tasks_update();
+    calendar_tasks_update();
+}
+
+
+// Method to update the tasks of the non dated tasks part of the HMI
+void MainWindow::non_dated_tasks_update()
+{
+    // non dated tasks part prior cleaning
+    // ... à implémenter, sans doute dans une autre méthode
+}
+
+
+// Method to update the tasks of the important tasks part of the HMI
+void MainWindow::important_tasks_update()
+{
+    // important tasks part prior cleaning
+}
+
+
+// Method to update the tasks of the calendar tasks part of the HMI
+void MainWindow::calendar_tasks_update()
+{
+    // calendar tasks part prior cleaning
+
+    // Création des tâches (i.e. les boutons)
+    map<int, NormalTask*> normal_task_list = tm->get_normal_tasks_list();
+
+    for (auto it = tm->get_normal_tasks_list().begin(); it != normal_task_list.end(); it++)
+    {
+        int *current_task_day_of_week = new int(it->second->get_task_date().dayOfWeek());
+
+        switch (*current_task_day_of_week)
+        {
+            case 1:
+
+                m_layout_taches_lundi->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                break;
+
+            case 2:
+
+                m_layout_taches_mardi->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                break;
+
+            case 3:
+
+                m_layout_taches_mercredi->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                break;
+
+            case 4:
+
+                m_layout_taches_jeudi->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                break;
+
+            case 5:
+
+                m_layout_taches_vendredi->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                break;
+
+            case 6:
+
+                m_layout_taches_samedi->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                break;
+
+            case 7:
+
+                m_layout_taches_dimanche->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                break;
+        }
+
+        delete current_task_day_of_week;
+        current_task_day_of_week = nullptr;
+    }
+
+    // Connect the TaskButton signals to Mainwindow slots
+    connect_task_button_signals();
+
+    // ...
+    reminder_tasks_update();
+
+    // ajout d'un spacer dans chacune des group box des différents jours
+    days_spacer_addition();
+}
+
+
+/*// Code de la méthode de chargement des tâches de la semaine courante
 void MainWindow::current_week_tasks_update()
 {
     // nettoyage préalable
     current_week_tasks_cleaning();
 
     // Récupération des numéros des tâches de la semaine courante
-    tm->load_current_week_tasks_numbers(m_current_date->year(), *m_current_week_number, m_current_week_tasks);
+    tm->load_current_week_tasks_numbers(m_current_date->year(), m_current_date->weekNumber(), m_current_week_tasks);
 
     // Chargement des tâches de la semaine courante
     for (vector<int>::iterator it = m_current_week_tasks->begin(); it != m_current_week_tasks->end(); it++)
@@ -190,9 +276,9 @@ void MainWindow::current_week_tasks_update()
     }
 
     // Création des tâches (i.e. les boutons)
-    map<int, Task*> one_time_task_list = tm->get_one_time_task_list();
+    map<int, NormalTask*> normal_task_list = tm->get_normal_tasks_list();
 
-    for (map<int, Task*>::iterator ottl_iterator = one_time_task_list.begin(); ottl_iterator != one_time_task_list.end(); ottl_iterator++)
+    for (map<int, NormalTask*>::iterator ottl_iterator = normal_task_list.begin(); ottl_iterator != normal_task_list.end(); ottl_iterator++)
     {
         int *current_task_day_of_week = new int(ottl_iterator->second->get_task_date().dayOfWeek());
 
@@ -247,6 +333,7 @@ void MainWindow::current_week_tasks_update()
     // ajout d'un spacer dans chacune des group box des différents jours
     days_spacer_addition();
 }
+*/
 
 //
 void MainWindow::connect_task_button_signals()
@@ -301,7 +388,7 @@ void MainWindow::change_task_number(int const& task_number)
         *m_selected_task_number = 0;
     }
 }
-
+/*
 //
 void MainWindow::current_week_tasks_cleaning()
 {
@@ -349,7 +436,6 @@ void MainWindow::go_to_previous_week()
     *updated_date = updated_date->addDays(-7);
 
     *m_current_date = *updated_date;
-    *m_current_week_number = m_current_date->weekNumber();
 
     calendar_week_update();
     important_tasks_update();
@@ -367,7 +453,6 @@ void MainWindow::go_to_next_week()
     *updated_date = updated_date->addDays(7);
 
     *m_current_date = *updated_date;
-    *m_current_week_number = m_current_date->weekNumber();
 
     calendar_week_update();
     important_tasks_update();
@@ -376,7 +461,7 @@ void MainWindow::go_to_next_week()
     delete updated_date;
     updated_date = nullptr;
 }
-
+*/
 // Code du SLOT d'ajout de tâche
 void MainWindow::task_addition()
 {
@@ -385,50 +470,74 @@ void MainWindow::task_addition()
 
     if (m_choix_gdt == QDialog::Accepted)
     {
-        if (ihm_gdt->get_reminder_state())
+        // variables initialization
+        QDate *date;
+        int *weeks_before_task;
+        int *periodicity;
+
+        // is_dated case
+        if ( ihm_gdt->get_is_dated() )
         {
-            nbr_wk_bfr_task = new int(ihm_gdt->get_nbr_weeks_before_task());
+            date = new QDate(ihm_gdt->get_date());
         }
         else
         {
-            nbr_wk_bfr_task = new int(0);
+            date = new QDate(1900, 1, 1);
         }
 
-        if (ihm_gdt->get_periodic_task_state())
+        // reminder case
+        if (ihm_gdt->get_reminder())
         {
-            *m_task_periodicity = ihm_gdt->get_task_periodicity();
+            weeks_before_task = new int(ihm_gdt->get_weeks_before_task());
         }
         else
         {
-            *m_task_periodicity = 0;
+            weeks_before_task = new int(0);
         }
 
-        tm->add_task(ihm_gdt->get_task_name(),
-                     ihm_gdt->get_task_importance(),
-                     ihm_gdt->get_task_date(),
+        // periodic task case
+        if (ihm_gdt->get_is_periodic())
+        {
+            periodicity = new int(ihm_gdt->get_periodicity());
+        }
+        else
+        {
+            periodicity = new int(0);
+        }
+
+        // task addition into DB
+        tm->add_task(ihm_gdt->get_name(),
+                     ihm_gdt->get_is_important(),
                      ihm_gdt->get_comments(),
-                     ihm_gdt->get_reminder_state(),
-                     *nbr_wk_bfr_task,
-                     ihm_gdt->get_periodic_task_state(),
-                     *m_task_periodicity);
+                     ihm_gdt->get_is_dated(),
+                     *date,
+                     ihm_gdt->get_reminder(),
+                     *weeks_before_task,
+                     ihm_gdt->get_is_periodic(),
+                     *periodicity);
 
-        // attribute cleaning
-        delete nbr_wk_bfr_task;
-        nbr_wk_bfr_task = nullptr;
+        // variables cleaning
+        delete date;
+        delete weeks_before_task;
+        delete periodicity;
+
+        date = nullptr;
+        weeks_before_task = nullptr;
+        periodicity = nullptr;
     }
-
+    /*
     // Mise-à-jour des tâches importantes / reminder / tâches "classiques"
-    if ( ihm_gdt->get_task_importance() == "Importante" )
+    if ( ihm_gdt->get_is_important() )
     {
         important_tasks_update();
     }
-    else if ( ihm_gdt->get_reminder_state() )
+    else if ( ihm_gdt->get_reminder() )
     {
         reminder_tasks_update();
     }
 
     current_week_tasks_update();
-
+    */
     // attribute cleaning
     delete ihm_gdt;
     ihm_gdt = nullptr;
@@ -450,37 +559,60 @@ void MainWindow::task_modification()
 
     if (m_choix_gdt == QDialog::Accepted)
     {
-        if (ihm_gdt->get_reminder_state())
+        // variables initializations
+        QDate *date;
+        int *weeks_before_task;
+        int *periodicity;
+
+        // is_dated case
+        if ( ihm_gdt->get_is_dated() )
         {
-            nbr_wk_bfr_task = new int(ihm_gdt->get_nbr_weeks_before_task());
+            date = new QDate(ihm_gdt->get_date());
         }
         else
         {
-            nbr_wk_bfr_task = new int(0);
+            date = new QDate(QDate::currentDate());
         }
 
-        if (ihm_gdt->get_periodic_task_state())
+        // reminder case
+        if (ihm_gdt->get_reminder())
         {
-            *m_task_periodicity = ihm_gdt->get_task_periodicity();
+            weeks_before_task = new int(ihm_gdt->get_weeks_before_task());
         }
         else
         {
-            *m_task_periodicity = 0;
+            weeks_before_task = new int(0);
+        }
+
+        // periodic task case
+        if (ihm_gdt->get_is_periodic())
+        {
+            periodicity = new int(ihm_gdt->get_periodicity());
+        }
+        else
+        {
+            periodicity = new int(0);
         }
 
         tm->modify_task(*m_selected_task_number,
-                        ihm_gdt->get_task_name(),
-                        ihm_gdt->get_task_importance(),
-                        ihm_gdt->get_task_date(),
+                        ihm_gdt->get_name(),
+                        ihm_gdt->get_is_important(),
                         ihm_gdt->get_comments(),
-                        ihm_gdt->get_reminder_state(),
-                        *nbr_wk_bfr_task,
-                        ihm_gdt->get_periodic_task_state(),
-                        *m_task_periodicity);
+                        ihm_gdt->get_is_dated(),
+                        *date,
+                        ihm_gdt->get_reminder(),
+                        *weeks_before_task,
+                        ihm_gdt->get_is_periodic(),
+                        *periodicity);
 
-        // Attribute cleaning
-        delete nbr_wk_bfr_task;
-        nbr_wk_bfr_task = nullptr;
+        // variables cleaning
+        delete date;
+        delete weeks_before_task;
+        delete periodicity;
+
+        date = nullptr;
+        weeks_before_task = nullptr;
+        periodicity = nullptr;
     }
     else if (m_choix_gdt == QDialog::Rejected)
     {
@@ -491,13 +623,12 @@ void MainWindow::task_modification()
     delete ihm_gdt;
     ihm_gdt = nullptr;
 }
-
+/*
 // Code du SLOT qui permet de marquer une tâche comme terminée
 void MainWindow::processed_task()
 {
     // variable initialization
-    int *validation_decision;
-    validation_decision = new int(0);
+    int *validation_decision = new int(0);
 
     // validation decision
     *validation_decision = QMessageBox::warning(this, "Validation d'une tâche", "Es-tu sûr(e) de vouloir valider cette tâche ?", QMessageBox::Yes | QMessageBox::No);
@@ -514,7 +645,8 @@ void MainWindow::processed_task()
     delete validation_decision;
     validation_decision = nullptr;
 }
-
+*/
+/*
 //
 void MainWindow::important_tasks_update()
 {
@@ -551,7 +683,9 @@ void MainWindow::important_tasks_update()
     important_task_list = nullptr;
     current_week_important_tasks_list = nullptr;
 }
+*/
 
+/*
 //
 void MainWindow::reminder_tasks_update()
 {
@@ -578,37 +712,37 @@ void MainWindow::reminder_tasks_update()
         {
             case 1:
 
-                m_layout_taches_lundi->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
+                m_layout_taches_lundi->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
                 break;
 
             case 2:
 
-                m_layout_taches_mardi->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
+                m_layout_taches_mardi->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
                 break;
 
             case 3:
 
-                m_layout_taches_mercredi->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
+                m_layout_taches_mercredi->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
                 break;
 
             case 4:
 
-                m_layout_taches_jeudi->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
+                m_layout_taches_jeudi->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
                 break;
 
             case 5:
 
-                m_layout_taches_vendredi->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
+                m_layout_taches_vendredi->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
                 break;
 
             case 6:
 
-                m_layout_taches_samedi->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
+                m_layout_taches_samedi->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
                 break;
 
             case 7:
 
-                m_layout_taches_dimanche->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
+                m_layout_taches_dimanche->addWidget(new TaskButton(rtl_iterator->second->get_task_name(), rtl_iterator->first, rtl_iterator->second->get_task_importance(), rtl_iterator->second->get_comments(), rtl_iterator->second->get_reminder_state(), false, false, this, false, rtl_iterator->second->get_nbr_weeks_before_task()));
                 break;
         }
 
@@ -623,6 +757,7 @@ void MainWindow::reminder_tasks_update()
     reminder_task_list = nullptr;
     reminder_tasks_numbers_list = nullptr;
 }
+*/
 
 // Méthode qui permet d'exécuter une autre méthode après le chargement de l'IHM
 /*void MainWindow::showEvent(QShowEvent *ev)
@@ -632,6 +767,11 @@ void MainWindow::reminder_tasks_update()
 }*/
 
 //
+//
+// FAUT-IL CONSERVER CETTE METHODE OU PLUTOT MUTUALISER LE NETTOYAGE DANS LA METHODE "current_week_tasks_cleaning" ?
+//
+//
+/*
 void MainWindow::current_week_periodic_tasks_cleaning()
 {
     QList<TaskButton *> *task_button_list = new QList<TaskButton *>();
@@ -654,15 +794,17 @@ void MainWindow::current_week_periodic_tasks_cleaning()
     m_current_week_periodic_tasks->clear();
     tm->clear_current_week_periodic_tasks();
 }
+*/
 
 //
+/*
 void MainWindow::current_week_periodic_task_update()
 {
     // nettoyage préalable
     current_week_periodic_tasks_cleaning();
 
     // Récupération des numéros des tâches périodiques de la semaine courante
-    tm->load_current_week_periodic_tasks_numbers(m_current_date->year(), *m_current_week_number, m_current_week_periodic_tasks);
+    tm->load_current_week_periodic_tasks_numbers(m_current_date->year(), m_current_date->weekNumber(), m_current_week_periodic_tasks);
 
     // Chargement des tâches de la semaine courante
     for (vector<int>::iterator it = m_current_week_periodic_tasks->begin(); it != m_current_week_periodic_tasks->end(); it++)
@@ -728,3 +870,4 @@ void MainWindow::current_week_periodic_task_update()
     // ajout d'un spacer dans chacune des group box des différents jours
     days_spacer_addition();
 }
+*/

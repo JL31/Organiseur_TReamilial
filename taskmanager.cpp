@@ -6,123 +6,313 @@ using namespace std;
 
 // Constructor
 TaskManager::TaskManager() :
-                         m_one_time_task_list(new map<int, Task*>()),
-                         m_periodic_task_list(new map<int, PeriodicTask*>()),
-                         m_important_task_list(new map<int, Task*>()),
-                         m_reminder_task_list(new map<int, Task*>()),
-                         m_number_of_tasks(new int(0)),
-                         m_db_handler(new DatabaseHandler()),
-                         m_week_number(new int(0))
+                             m_non_dated_tasks_list(new map<int, NonDatedTask*>()),
+                             m_normal_tasks_list(new map<int, NormalTask*>()),
+                             m_periodic_tasks_list(new map<int, PeriodicTask*>()),
+                             m_reminder_tasks_list(new vector<Reminder*>()),
+                             m_important_tasks_list(new vector<NormalTask*>()),
+                             m_number_of_tasks(new int(0)),
+                             m_db_handler(new DatabaseHandler())
 {}
 
 // Destructor
 TaskManager::~TaskManager()
 {
     // free memory
-    delete m_one_time_task_list;
-    delete m_periodic_task_list;
-    delete m_important_task_list;
-    delete m_reminder_task_list;
+    delete m_non_dated_tasks_list;
+    delete m_normal_tasks_list;
+    delete m_periodic_tasks_list;
+    delete m_important_tasks_list;
+    delete m_reminder_tasks_list;
     delete m_number_of_tasks;
     delete m_db_handler;
 
     // ...
-    m_one_time_task_list = nullptr;
-    m_periodic_task_list = nullptr;
-    m_important_task_list = nullptr;
-    m_reminder_task_list = nullptr;
+    m_non_dated_tasks_list = nullptr;
+    m_normal_tasks_list = nullptr;
+    m_periodic_tasks_list = nullptr;
+    m_important_tasks_list = nullptr;
+    m_reminder_tasks_list = nullptr;
     m_number_of_tasks = nullptr;
     m_db_handler = nullptr;
 }
 
 // Getters
-int TaskManager::get_number_of_tasks() const
+int TaskManager::get_number_of_tasks()
+const
 {
     return *m_number_of_tasks;
 }
 
-// DB task addition
-void TaskManager::add_task(QString const& task_name,
-                           QString const& task_importance,
-                           QDate const& task_date,
+// Method to add a task into the DB
+void TaskManager::add_task(QString const& name,
+                           bool const& is_important,
                            QString const& comments,
+                           bool const& is_dated,
+                           QDate const& date,
                            bool const& reminder,
-                           int const& nbr_weeks_before_task,
-                           bool const& periodic_task_state,
-                           int const& task_periodicity
-                           )
+                           int const& weeks_before_task,
+                           bool const& is_periodic,
+                           int const& periodicity)
 {
     // calculation of the task number
-    int *new_nbr_of_tasks;
-    new_nbr_of_tasks = new int(m_db_handler->DB_get_number_of_tasks() + 1);
-
-    // week number calculation
-    *m_week_number = task_date.weekNumber();
-
-    m_db_handler->DB_task_addition(to_string(*new_nbr_of_tasks),
-                                   task_name.toUtf8().constData(),
-                                   task_importance.toUtf8().constData(),
-                                   to_string(task_date.year()),
-                                   to_string(task_date.month()),
-                                   to_string(task_date.day()),
-                                   to_string(*m_week_number),
+    m_db_handler->DB_task_addition(name.toUtf8().constData(),
+                                   to_string(is_important),
                                    comments.toUtf8().constData(),
+                                   to_string(is_dated),
+                                   to_string(date.day()),
+                                   to_string(date.month()),
+                                   to_string(date.year()),
+                                   to_string(date.weekNumber()),
                                    to_string(reminder),
-                                   to_string(nbr_weeks_before_task),
-                                   to_string(periodic_task_state),
-                                   to_string(task_periodicity));
-
-    //cleaning
-    delete new_nbr_of_tasks;
-    new_nbr_of_tasks = nullptr;
+                                   to_string(weeks_before_task),
+                                   to_string(is_periodic),
+                                   to_string(periodicity));
 }
 
-// DB task addition
-void TaskManager::modify_task(int const& task_number,
-                              QString const& task_name,
-                              QString const& task_importance,
-                              QDate const& task_date,
+
+// Method to modify an existing task into the DB
+void TaskManager::modify_task(int const& number,
+                              QString const& name,
+                              bool const& is_important,
                               QString const& comments,
+                              bool const& is_dated,
+                              QDate const& date,
                               bool const& reminder,
-                              int const& nbr_weeks_before_task,
-                              bool const& periodic_task_state,
-                              int const& task_periodicity)
+                              int const& weeks_before_task,
+                              bool const& is_periodic,
+                              int const& periodicity)
 {
-    // week number calculation
-    *m_week_number = task_date.weekNumber();
-
-    m_db_handler->DB_task_modification(to_string(task_number),
-                                       task_name.toUtf8().constData(),
-                                       task_importance.toUtf8().constData(),
-                                       to_string(task_date.year()),
-                                       to_string(task_date.month()),
-                                       to_string(task_date.day()),
-                                       to_string(*m_week_number),
+    m_db_handler->DB_task_modification(to_string(number),
+                                       name.toUtf8().constData(),
+                                       to_string(is_important),
                                        comments.toUtf8().constData(),
+                                       to_string(is_dated),
+                                       to_string(date.day()),
+                                       to_string(date.month()),
+                                       to_string(date.year()),
+                                       to_string(date.weekNumber()),
                                        to_string(reminder),
-                                       to_string(nbr_weeks_before_task),
-                                       to_string(periodic_task_state),
-                                       to_string(task_periodicity));
+                                       to_string(weeks_before_task),
+                                       to_string(is_periodic),
+                                       to_string(periodicity));
+}
+
+
+//
+void TaskManager::data_retrieval(int const& number, map<string, string> *data_from_DB)
+{
+    m_db_handler->DB_task_data_retrieval(number, data_from_DB);
 }
 
 //
-void TaskManager::data_retrieval(int const& task_number, map<string, string> *data_from_DB)
+void TaskManager::validate_task(int const& number)
 {
-    m_db_handler->DB_task_data_retrieval(task_number, data_from_DB);
+    m_db_handler->DB_task_validation(to_string(number));
 }
 
-//
-void TaskManager::validate_task(int const& task_number)
+
+// Method to load othe several types of tasks for the current week
+void TaskManager::load_current_week_data(int const& current_year, int const& current_week_number)
 {
-    m_db_handler->DB_task_validation(to_string(task_number));
+    // prior cleaning
+    task_lists_cleaning();
+
+    // several types tasks loading
+    load_non_dated_tasks();
+    load_normal_tasks(current_year, current_week_number);
+    //load_periodic_tasks(current_year, current_week_number);
+    load_reminders_list(current_year, current_week_number);
+    load_important_tasks_list(current_year, current_week_number);
 }
+
+
+// Method to clean the several attributes that contain the several types tasks instances
+void TaskManager::task_lists_cleaning()
+{
+    m_non_dated_tasks_list->clear();
+    m_normal_tasks_list->clear();
+    m_periodic_tasks_list->clear();
+    m_important_tasks_list->clear();
+    m_reminder_tasks_list->clear();
+}
+
+
+// Method to load the non dated tasks
+void TaskManager::load_non_dated_tasks()
+{
+    // attribute initialization
+    m_data_extraction_from_DB = new vector<map<string, string>>();
+
+    // data retrieval into database
+    m_db_handler->DB_load_non_dated_tasks(m_data_extraction_from_DB);
+
+    // non dated tasks list filling-in with data extracted from database
+    for (auto it = m_data_extraction_from_DB->begin(); it != m_data_extraction_from_DB->end(); it++)
+    {
+        m_non_dated_tasks_list->insert(make_pair(stoi((*it)["NUMBER"]),
+                                                 new NonDatedTask(stoi((*it)["NUMBER"]),
+                                                                  QString::fromStdString((*it)["NAME"]),
+                                                                  stoi((*it)["IS_IMPORTANT"]),
+                                                                  QString::fromStdString((*it)["COMMENTS"]),
+                                                                  stoi((*it)["IS_PROCESSED"])
+                                                                 )
+                                                 )
+                                       );
+    }
+
+    // attribute cleaning
+    delete m_data_extraction_from_DB;
+    m_data_extraction_from_DB = nullptr;
+}
+
+
+// Method to load the normal tasks
+void TaskManager::load_normal_tasks(int const& current_year, int const& current_week_number)
+{
+    // attribute initialization
+    m_data_extraction_from_DB = new vector<map<string, string>>();
+
+    // data retrieval into database
+    m_db_handler->DB_load_normal_tasks(to_string(current_year), to_string(current_week_number), m_data_extraction_from_DB);
+
+    // non dated tasks list filling-in with data extracted from database
+    for (auto it = m_data_extraction_from_DB->begin(); it != m_data_extraction_from_DB->end(); it++)
+    {
+        m_normal_tasks_list->insert(make_pair(stoi((*it)["NUMBER"]),
+                                              new NormalTask(stoi((*it)["NUMBER"]),
+                                                             QString::fromStdString((*it)["NAME"]),
+                                                             stoi((*it)["IS_IMPORTANT"]),
+                                                             QString::fromStdString((*it)["COMMENTS"]),
+                                                             stoi((*it)["IS_PROCESSED"]),
+                                                             stoi((*it)["IS_DATED"]),
+                                                             QDate(stoi((*it)["YEAR"]),
+                                                                   stoi((*it)["MONTH"]),
+                                                                   stoi((*it)["DAY"])),
+                                                             stoi((*it)["REMINDER"]),
+                                                             stoi((*it)["WEEKS_BEFORE_TASK"])
+                                                            )
+                                             )
+                                   );
+    }
+
+    // attribute cleaning
+    delete m_data_extraction_from_DB;
+    m_data_extraction_from_DB = nullptr;
+}
+
+
+// Method to load the reminder tasks
+void TaskManager::load_reminders_list(int const& current_year, int const& current_week_number)
+{
+    // attributes initialization
+    m_data_extraction_from_DB = new vector<map<string, string>>();
+
+    // priori reminder data retrieval into database
+    m_db_handler->DB_prior_step_for_reminder_tasks_loading(m_data_extraction_from_DB);
+
+    // variables initialization
+    vector<int> *tmp_reminder_tasks_numbers = new vector<int>();
+
+    // ...
+    for (auto it = m_data_extraction_from_DB->begin(); it != m_data_extraction_from_DB->end(); it++)
+    {
+        QDate *tmp_date = new QDate(stoi((*it)["YEAR"]), stoi((*it)["MONTH"]), stoi((*it)["DAY"]));
+        *tmp_date = tmp_date->addDays(-7 * stoi((*it)["WEEKS_BEFORE_TASK"]));
+
+        if ( tmp_date->year() == current_year and tmp_date->weekNumber() == current_week_number )
+        {
+            tmp_reminder_tasks_numbers->push_back(stoi((*it)["NUMBER"]));
+        }
+
+        delete tmp_date;
+        tmp_date = nullptr;
+    }
+
+    // ...
+    for ( auto it = tmp_reminder_tasks_numbers->begin(); it != tmp_reminder_tasks_numbers->end(); it++ )
+    {
+        // variables initialization
+        map<string, string> *m_reminder_data_extraction_from_DB = new map<string, string>();
+
+        // reminder data retrieval into database
+        m_db_handler->DB_reminder_task_loading_from_reminder_task_number(to_string(*it), m_reminder_data_extraction_from_DB);
+
+        // ...
+        m_reminder_tasks_list->push_back(new Reminder(stoi((*m_reminder_data_extraction_from_DB)["NUMBER"]),
+                                                     QString::fromStdString((*m_reminder_data_extraction_from_DB)["NAME"]),
+                                                     QString::fromStdString((*m_reminder_data_extraction_from_DB)["COMMENTS"]),
+                                                     QDate(stoi((*m_reminder_data_extraction_from_DB)["YEAR"]),
+                                                           stoi((*m_reminder_data_extraction_from_DB)["MONTH"]),
+                                                           stoi((*m_reminder_data_extraction_from_DB)["DAY"])),
+                                                     stoi((*m_reminder_data_extraction_from_DB)["WEEKS_BEFORE_TASK"])));
+
+        // variables cleaning
+        delete m_reminder_data_extraction_from_DB;
+        m_reminder_data_extraction_from_DB = nullptr;
+    }
+
+    // variables cleaning
+    delete tmp_reminder_tasks_numbers;
+    tmp_reminder_tasks_numbers = nullptr;
+
+    // attributes cleaning
+    delete m_data_extraction_from_DB;
+    m_data_extraction_from_DB = nullptr;
+}
+
+
+// Method to load the important tasks
+// This method will actually fills-in the important tasks list vector with existing objects of the NormalTask class
+void TaskManager::load_important_tasks_list(int const& current_year, int const& current_week_number)
+{
+    // important tasks list filling-in with important normal tasks of the current week
+    for (auto it = m_normal_tasks_list->begin(); it != m_normal_tasks_list->end(); it++)
+    {
+        if ( ( it->second->get_date().year() == current_year ) and
+             ( it->second->get_date().weekNumber() == current_week_number ) and
+              it->second->get_is_important() )
+        {
+            m_important_tasks_list->push_back(it->second);
+        }
+    }
+}
+
+
+// Getter of the non dated tasks list
+const map<int, NonDatedTask*>& TaskManager::get_non_dated_tasks_list() const
+{
+    return *m_non_dated_tasks_list;
+}
+
+
+// Getter of the normal tasks list
+const map<int, NormalTask*>& TaskManager::get_normal_tasks_list() const
+{
+    return *m_normal_tasks_list;
+}
+
+
+// Getter of the reminder tasks list
+const vector<Reminder*>& TaskManager::get_reminder_tasks_list() const
+{
+    return *m_reminder_tasks_list;
+}
+
+
+// Getter of the important tasks list
+const vector<NormalTask*>& TaskManager::get_important_tasks_list() const
+{
+    return *m_important_tasks_list;
+}
+
 
 //
 void TaskManager::load_current_week_tasks_numbers(int const& current_year, int const& current_week_number, vector<int> *current_week_tasks)
 {
     m_db_handler->DB_get_current_week_tasks_numbers(to_string(current_year), to_string(current_week_number), current_week_tasks);
 }
-
+/*
 //
 void TaskManager::load_current_week_tasks(int const& task_number)
 {
@@ -177,7 +367,7 @@ void TaskManager::load_current_week_important_tasks(int const& task_number)
 
     if ( stoi((*m_task_data_extraction_from_DB)["PROCESSED"]) == 0 )
     {
-        m_important_task_list->insert(make_pair(stoi((*m_task_data_extraction_from_DB)["NUMBER"]), new Task(stoi((*m_task_data_extraction_from_DB)["NUMBER"]),
+        m_important_tasks_list->insert(make_pair(stoi((*m_task_data_extraction_from_DB)["NUMBER"]), new Task(stoi((*m_task_data_extraction_from_DB)["NUMBER"]),
                                                                                                            QString::fromStdString((*m_task_data_extraction_from_DB)["NAME"]),
                                                                                                            QString::fromStdString((*m_task_data_extraction_from_DB)["IMPORTANCE"]),
                                                                                                            QDate(stoi((*m_task_data_extraction_from_DB)["YEAR"]),
@@ -195,13 +385,13 @@ void TaskManager::load_current_week_important_tasks(int const& task_number)
 //
 const map<int, Task*>& TaskManager::get_important_task_list() const
 {
-    return *m_important_task_list;
+    return *m_important_tasks_list;
 }
 
 //
 void TaskManager::clear_current_week_important_tasks()
 {
-    m_important_task_list->clear();
+    m_important_tasks_list->clear();
 }
 
 //
@@ -252,7 +442,7 @@ void TaskManager::load_reminder_tasks_list(int const& task_number)
 
         *tmp_date = tmp_date->addDays(-7 * stoi((*m_task_data_extraction_from_DB)["WEEKS_BEFORE_TASK"]));
 
-        m_reminder_task_list->insert(make_pair(stoi((*m_task_data_extraction_from_DB)["NUMBER"]), new Task(stoi((*m_task_data_extraction_from_DB)["NUMBER"]),
+        m_reminder_tasks_list->insert(make_pair(stoi((*m_task_data_extraction_from_DB)["NUMBER"]), new Task(stoi((*m_task_data_extraction_from_DB)["NUMBER"]),
                                                                                                            QString::fromStdString((*m_task_data_extraction_from_DB)["NAME"]),
                                                                                                            QString::fromStdString((*m_task_data_extraction_from_DB)["IMPORTANCE"]),
                                                                                                            QDate(tmp_date->year(), tmp_date->month(), tmp_date->day()),
@@ -271,13 +461,13 @@ void TaskManager::load_reminder_tasks_list(int const& task_number)
 //
 const map<int, Task*>& TaskManager::get_reminder_task_list() const
 {
-    return *m_reminder_task_list;
+    return *m_reminder_tasks_list;
 }
 
 //
 void TaskManager::clear_current_week_reminder_tasks()
 {
-    m_reminder_task_list->clear();
+    m_reminder_tasks_list->clear();
 }
 
 //
@@ -289,7 +479,7 @@ void TaskManager::load_current_week_periodic_tasks_numbers(int const& current_ye
 //
 void TaskManager::clear_current_week_periodic_tasks()
 {
-    m_periodic_task_list->clear();
+    m_periodic_tasks_list->clear();
 }
 
 //
@@ -304,7 +494,7 @@ void TaskManager::load_current_week_periodic_tasks(int const& task_number)
 
     }
 
-    m_periodic_task_list->insert(make_pair(stoi((*m_task_data_extraction_from_DB)["NUMBER"]), new PeriodicTask(stoi((*m_task_data_extraction_from_DB)["NUMBER"]),
+    m_periodic_tasks_list->insert(make_pair(stoi((*m_task_data_extraction_from_DB)["NUMBER"]), new PeriodicTask(stoi((*m_task_data_extraction_from_DB)["NUMBER"]),
                                                                                                                QString::fromStdString((*m_task_data_extraction_from_DB)["NAME"]),
                                                                                                                QString::fromStdString((*m_task_data_extraction_from_DB)["IMPORTANCE"]),
                                                                                                                QDate(stoi((*m_task_data_extraction_from_DB)["YEAR"]),
@@ -322,5 +512,6 @@ void TaskManager::load_current_week_periodic_tasks(int const& task_number)
 //
 const map<int, PeriodicTask*>& TaskManager::get_periodic_task_list() const
 {
-    return *m_periodic_task_list;
+    return *m_periodic_tasks_list;
 }
+*/

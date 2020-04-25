@@ -10,6 +10,8 @@ IHMGestionDesTaches::IHMGestionDesTaches(QWidget *parent) : QDialog(parent), ui(
 {
     ui->setupUi(this);
 
+    ui->de_task_date->setDate(QDate::currentDate());    // initialisation à la date du jour
+
     // connexion des signaux et des slots
     connexions();
 }
@@ -25,6 +27,29 @@ void IHMGestionDesTaches::connexions() const
 {
     connect(ui->validate_button, SIGNAL(clicked()), this, SLOT(accept()));
     connect(ui->cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(ui->gb_dated_task, SIGNAL(toggled(bool)), this, SLOT(dated_task_selection()));
+}
+
+
+// Code du slot qui permet de gérer les GroupBox concernant les options pour :
+// - les rappels
+// - les tâches périodiques
+// selon si l'utilisateur à choisi ou non que la tâche soit datée
+void IHMGestionDesTaches::dated_task_selection()
+{
+    if ( ui->gb_dated_task->isChecked() )
+    {
+        ui->gb_reminder->setEnabled(true);
+        ui->gb_periodic_task->setEnabled(true);
+    }
+    else
+    {
+        ui->gb_reminder->setEnabled(false);
+        ui->gb_reminder->setChecked(false);
+
+        ui->gb_periodic_task->setEnabled(false);
+        ui->gb_periodic_task->setChecked(false);
+    }
 }
 
 
@@ -38,13 +63,34 @@ void IHMGestionDesTaches::dialog_initialization_for_task_modification(map<string
 
     ui->le_task_name->setText(QString::fromStdString((*data_from_DB)["NAME"]));
 
-    ui->cb_task_importance->setCurrentText(QString::fromStdString((*data_from_DB)["IMPORTANCE"]));
+    if ( QString::fromStdString((*data_from_DB)["IMPORTANCE"]) == 1 )
+    {
+        ui->cb_important_task->setChecked(true);
+    }
+    else
+    {
+        ui->cb_important_task->setChecked(false);
+    }
 
-    QDate *modified_date;
-    modified_date = new QDate(QString::fromStdString((*data_from_DB)["YEAR"]).toInt(),
-                              QString::fromStdString((*data_from_DB)["MONTH"]).toInt(),
-                              QString::fromStdString((*data_from_DB)["DAY"]).toInt());
-    ui->de_task_date->setDate(*modified_date);
+    if ( QString::fromStdString((*data_from_DB)["IS_DATED"]) == 1 )
+    {
+        ui->gb_dated_task->setChecked(true);
+
+        QDate *date;
+        QString *time_format = new QString("dd/MM/yyyy");
+        date = new QDate(QDate::fromString(QString::fromStdString((*data_from_DB)["DATE"]), *time_format));
+        ui->de_task_date->setDate(*date);
+
+        delete date;
+        delete time_format;
+
+        date = nullptr;
+        time_format = nullptr;
+    }
+    else
+    {
+        ui->gb_dated_task->setChecked(false);
+    }
 
     int *reminder_state;
     reminder_state = new int(QString::fromStdString((*data_from_DB)["REMINDER"]).toInt());
@@ -55,11 +101,11 @@ void IHMGestionDesTaches::dialog_initialization_for_task_modification(map<string
         ui->sb_nbr_weeks_before_task->setValue(QString::fromStdString((*data_from_DB)["WEEKS_BEFORE_TASK"]).toInt());
     }
 
-    int *periodic_task_state;
-    periodic_task_state = new int(QString::fromStdString((*data_from_DB)["PERIODIC_TASK"]).toInt());
-    ui->gb_periodic_task->setChecked(*periodic_task_state);
+    int *is_periodic;
+    is_periodic = new int(QString::fromStdString((*data_from_DB)["IS_PERIODIC"]).toInt());
+    ui->gb_periodic_task->setChecked(*is_periodic);
 
-    if ( *periodic_task_state )
+    if ( *is_periodic )
     {
         ui->sb_task_periodicty->setValue(QString::fromStdString((*data_from_DB)["PERIODICITY"]).toInt());
     }
@@ -67,48 +113,51 @@ void IHMGestionDesTaches::dialog_initialization_for_task_modification(map<string
     ui->te_task_comments->setPlainText(QString::fromStdString((*data_from_DB)["COMMENTS"]));
 
     // variables cleaning
-    delete modified_date;
     delete reminder_state;
-    delete periodic_task_state;
+    delete is_periodic;
 
-    modified_date = nullptr;
     reminder_state = nullptr;
-    periodic_task_state = nullptr;
+    is_periodic = nullptr;
 }
 
 
 // Accesseurs
-QString IHMGestionDesTaches::get_task_name() const
+QString IHMGestionDesTaches::get_name() const
 {
     return ui->le_task_name->text();
 }
 
-QString IHMGestionDesTaches::get_task_importance() const
+bool IHMGestionDesTaches::get_is_important() const
 {
-    return ui->cb_task_importance->currentText();
+    return ui->cb_important_task->isChecked();
 }
 
-QDate IHMGestionDesTaches::get_task_date() const
+bool IHMGestionDesTaches::get_is_dated() const
+{
+    return ui->gb_dated_task->isChecked();
+}
+
+QDate IHMGestionDesTaches::get_date() const
 {
     return ui->de_task_date->date();
 }
 
-bool IHMGestionDesTaches::get_periodic_task_state() const
+bool IHMGestionDesTaches::get_is_periodic() const
 {
     return ui->gb_periodic_task->isChecked();
 }
 
-int IHMGestionDesTaches::get_task_periodicity() const
+int IHMGestionDesTaches::get_periodicity() const
 {
     return ui->sb_task_periodicty->value();
 }
 
-bool IHMGestionDesTaches::get_reminder_state() const
+bool IHMGestionDesTaches::get_reminder() const
 {
     return ui->gb_reminder->isChecked();
 }
 
-int IHMGestionDesTaches::get_nbr_weeks_before_task() const
+int IHMGestionDesTaches::get_weeks_before_task() const
 {
     return ui->sb_nbr_weeks_before_task->value();
 }

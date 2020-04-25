@@ -14,27 +14,29 @@ class IHMGestionDesTaches : public QDialog, public Ui::FenetreGestionDesTaches
     Q_OBJECT
 
     public:
-        // Constructeurs et destructeur
+        // Constructor et destructor
             IHMGestionDesTaches(QWidget *parent = nullptr);
             virtual ~IHMGestionDesTaches();
 
-        // connexions
+        // connections
             void connexions() const;
 
         // modifications de certains widgets
             void dialog_initialization_for_task_modification(std::map<std::string, std::string> *data_from_DB);
 
-        // accesseurs
-            QString get_task_name() const;
-            QString get_task_importance() const;
-            QDate get_task_date() const;
-            bool get_periodic_task_state()const;
-            int get_task_periodicity() const;
-            bool get_reminder_state() const;
-            int get_nbr_weeks_before_task() const;
+        // Getters
+            QString get_name() const;
+            bool get_is_important() const;
+            bool get_is_dated() const;
+            QDate get_date() const;
+            bool get_is_periodic()const;
+            int get_periodicity() const;
+            bool get_reminder() const;
+            int get_weeks_before_task() const;
             QString get_comments() const;
 
     public slots:
+        void dated_task_selection();
 
     protected:
         Ui::FenetreGestionDesTaches *ui;

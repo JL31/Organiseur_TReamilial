@@ -1,14 +1,13 @@
 #include "databasehandler.h"
 
-#include <string>
-
 #include <QtWidgets>
 
 using namespace std;
 
 // Constructeur
 DatabaseHandler::DatabaseHandler() :
-                                 m_database_name("/home/tream/Bureau/Developpements/Langage_cpp/Test_organiseur/database/test.db"),
+                                 //m_database_name("/home/tream/Bureau/Developpements/Langage_cpp/Organiseur_TReamilial/database/test.db"),
+                                 m_database_name("/home/tream/Bureau/Developpements/Langage_cpp/Organiseur_TReamilial/database/ot_databases.db"),
                                  m_counter(new int(0))
 {}
 
@@ -38,7 +37,7 @@ int DatabaseHandler::DB_get_number_of_tasks()
     DB_opening();
 
     // DB counting
-    m_sql_request = new string("SELECT COUNT(*) FROM TASK_TABLE;");
+    m_sql_request = new string("SELECT COUNT(*) FROM TASKS;");
 
     m_rc = sqlite3_exec(m_database, m_sql_request->c_str(), DB_get_number_of_tasks_callback, m_counter, &m_zErrMsg);
 
@@ -76,49 +75,107 @@ static int DB_task_addition_callback(void *dummy, int argc, char **argv, char **
     return 0;
 }
 
-// DB_task_addition method
-void DatabaseHandler::DB_task_addition(std::string const& new_nbr_of_tasks,
-                                       std::string const& task_name,
-                                       std::string const& task_importance,
-                                       std::string const& year,
-                                       std::string const& month,
-                                       std::string const& day,
-                                       std::string const& week_number,
-                                       std::string const& comments,
-                                       std::string const& reminder,
-                                       std::string const& nbr_weeks_before_task,
-                                       std::string const& periodic_task_state,
-                                       std::string const& task_periodicity)
+
+// Function to replace the single quote by two quotes
+void string_replacement(string& database_attribute)
 {
+    //
+    //
+    // voir comment adapter cette fonction :
+    // l'idéal serait de passer aux méthodes "DB_task_addition" et "DB_task_modification"
+    // les variables "name" et "comments" en références non constante (par exemple : string& name)
+    // pour ce faire il faudra sans doute remonter jusqu'au getter de ces variables dans la classe
+    // "IHMGestionDesTaches" afin de modifier le type de retour des getters associés à ces variables
+    // car pour le moment ce sont des QString
+    // il faudra voir comment on pourrait retourner des QString& (des références sur des QString)
+    // il faudra peut-être passer par des variables intermédiaires
+    //
+    //
+    //
+
+    size_t index = 0;
+
+    while (true)
+    {
+        index = database_attribute.find("'", index);
+
+        if ( index == string::npos )
+        {
+            break;
+        }
+
+         database_attribute.replace(index, 1, "''", 2);
+
+         index += 2;
+    }
+}
+
+
+// DB_task_addition method
+void DatabaseHandler::DB_task_addition(string const& name,
+                                       string const& is_important,
+                                       string const& comments,
+                                       string const& is_dated,
+                                       string const& day,
+                                       string const& month,
+                                       string const& year,
+                                       string const& week_number,
+                                       string const& reminder,
+                                       string const& weeks_before_task,
+                                       string const& is_periodic,
+                                       string const& periodicity)
+{
+    // variables initialization
+    string *modified_name = new string();
+    string *modified_comments = new string();
+
+    modified_name->append(name);
+    modified_comments->append(comments);
+
+    string_replacement(*modified_name);
+    string_replacement(*modified_comments);
+
     // request initialization
     m_sql_request = new string();
 
-    m_sql_request->append("INSERT INTO TASK_TABLE (NUMBER, NAME, IMPORTANCE, YEAR, MONTH, DAY, WEEK_NUMBER, COMMENTS, PROCESSED, REMINDER, WEEKS_BEFORE_TASK, PERIODIC_TASK, PERIODICITY)\n");
-    m_sql_request->append("VALUES (");
-    m_sql_request->append(new_nbr_of_tasks);
-    m_sql_request->append(", \'");
-    m_sql_request->append(task_name);
-    m_sql_request->append("\', \'");
-    m_sql_request->append(task_importance);
+    m_sql_request->append("INSERT INTO TASKS (NAME, IS_IMPORTANT, COMMENTS, IS_DATED, DAY, MONTH, YEAR, WEEK_NUMBER, REMINDER,  WEEKS_BEFORE_TASK, IS_PERIODIC, PERIODICITY, IS_PROCESSED)\n");
+    m_sql_request->append("VALUES ('");
+
+    m_sql_request->append(*modified_name);
     m_sql_request->append("\', ");
-    m_sql_request->append(year);
+
+    m_sql_request->append(is_important);
+    m_sql_request->append(", \"");
+
+    m_sql_request->append(*modified_comments);
+    m_sql_request->append("\", ");
+
+    m_sql_request->append(is_dated);
     m_sql_request->append(", ");
-    m_sql_request->append(month);
-    m_sql_request->append(", ");
+
     m_sql_request->append(day);
     m_sql_request->append(", ");
+
+    m_sql_request->append(month);
+    m_sql_request->append(", ");
+
+    m_sql_request->append(year);
+    m_sql_request->append(", ");
+
     m_sql_request->append(week_number);
-    m_sql_request->append(", \'");
-    m_sql_request->append(comments);
-    m_sql_request->append("\', 0, ");   // processed is 0 for task creation
+    m_sql_request->append(", ");
+
     m_sql_request->append(reminder);
     m_sql_request->append(", ");
-    m_sql_request->append(nbr_weeks_before_task);
+
+    m_sql_request->append(weeks_before_task);
     m_sql_request->append(", ");
-    m_sql_request->append(periodic_task_state);
-    m_sql_request->append(", \'");
-    m_sql_request->append(task_periodicity);
-    m_sql_request->append("\');");
+
+    m_sql_request->append(is_periodic);
+    m_sql_request->append(", ");
+
+    m_sql_request->append(periodicity);
+    m_sql_request->append(", 0);");         // IS_PROCESSED is 0 for task creation
 
     // DB opening
     DB_opening();
@@ -142,63 +199,97 @@ void DatabaseHandler::DB_task_addition(std::string const& new_nbr_of_tasks,
     // attributes cleaning
     delete m_sql_request;
     m_sql_request = nullptr;
+
+    // variables cleaning
+    delete modified_name;
+    delete modified_comments;
+
+    modified_name = nullptr;
+    modified_comments = nullptr;
 }
 
 // DB_task_modification method
-void DatabaseHandler::DB_task_modification(string const& task_number,
-                                           string const& task_name,
-                                           string const& task_importance,
-                                           string const& year,
-                                           string const& month,
-                                           string const& day,
-                                           string const& week_number,
+void DatabaseHandler::DB_task_modification(string const& number,
+                                           string const& name,
+                                           string const& is_important,
                                            string const& comments,
+                                           string const& is_dated,
+                                           string const& day,
+                                           string const& month,
+                                           string const& year,
+                                           string const& week_number,
                                            string const& reminder,
-                                           string const& nbr_weeks_before_task,
-                                           string const& periodic_task_state,
-                                           string const& task_periodicity)
+                                           string const& weeks_before_task,
+                                           string const& is_periodic,
+                                           string const& periodicity)
 {
+    // variables initialization
+    string *modified_name = new string();
+    string *modified_comments = new string();
+
+    modified_name->append(name);
+    modified_comments->append(comments);
+
+    string_replacement(*modified_name);
+    string_replacement(*modified_comments);
+
     // request initialization
     m_sql_request = new string();
 
-    m_sql_request->append("UPDATE TASK_TABLE\n");
+    m_sql_request->append("UPDATE TASKS\n");
     m_sql_request->append("SET NAME = \'");
-    m_sql_request->append(task_name);
+    m_sql_request->append(*modified_name);
     m_sql_request->append("\',\n");
-    m_sql_request->append("    IMPORTANCE = \'");
-    m_sql_request->append(task_importance);
+
+    m_sql_request->append("    IS_IMPORTANT = ");
+    m_sql_request->append(is_important);
+    m_sql_request->append(",\n");
+
+    m_sql_request->append("    COMMENTS = \'");
+    m_sql_request->append(*modified_comments);
     m_sql_request->append("\',\n");
-    m_sql_request->append("    YEAR = ");
-    m_sql_request->append(year);
+
+    m_sql_request->append("    IS_DATED = ");
+    m_sql_request->append(is_dated);
     m_sql_request->append(",\n");
-    m_sql_request->append("    MONTH = ");
-    m_sql_request->append(month);
-    m_sql_request->append(",\n");
+
     m_sql_request->append("    DAY = ");
     m_sql_request->append(day);
     m_sql_request->append(",\n");
+
+    m_sql_request->append("    MONTH = ");
+    m_sql_request->append(month);
+    m_sql_request->append(",\n");
+
+    m_sql_request->append("    YEAR = ");
+    m_sql_request->append(year);
+    m_sql_request->append(",\n");
+
     m_sql_request->append("    WEEK_NUMBER = ");
     m_sql_request->append(week_number);
     m_sql_request->append(",\n");
-    m_sql_request->append("    COMMENTS = \'");
-    m_sql_request->append(comments);
-    m_sql_request->append("\',\n");
-    m_sql_request->append("    PROCESSED = 0,\n");    // processed is 0 for task modification
+
     m_sql_request->append("    REMINDER = ");
     m_sql_request->append(reminder);
     m_sql_request->append(",\n");
+
     m_sql_request->append("    WEEKS_BEFORE_TASK = ");
-    m_sql_request->append(nbr_weeks_before_task);
+    m_sql_request->append(weeks_before_task);
     m_sql_request->append(",\n");
-    m_sql_request->append("    PERIODIC_TASK = ");
-    m_sql_request->append(periodic_task_state);
+
+    m_sql_request->append("    IS_PERIODIC = ");
+    m_sql_request->append(is_periodic);
     m_sql_request->append(",\n");
-    m_sql_request->append("    PERIODICITY = \'");
-    m_sql_request->append(task_periodicity);
-    m_sql_request->append("\'\n");
+
+    m_sql_request->append("    PERIODICITY = ");
+    m_sql_request->append(periodicity);
+    m_sql_request->append(",\n");
+
+    m_sql_request->append("    IS_PROCESSED = 0,\n");    // IS_PROCESSED is 0 for task modification
+
     m_sql_request->append("WHERE\n");
     m_sql_request->append("    NUMBER = ");
-    m_sql_request->append(task_number);
+    m_sql_request->append(number);
     m_sql_request->append(";");
 
     // DB opening
@@ -223,6 +314,13 @@ void DatabaseHandler::DB_task_modification(string const& task_number,
     // attributes cleaning
     delete m_sql_request;
     m_sql_request = nullptr;
+
+    // variables cleaning
+    delete modified_name;
+    delete modified_comments;
+
+    modified_name = nullptr;
+    modified_comments = nullptr;
 }
 
 // DB_task_data_retrieval_callback method callback
@@ -232,7 +330,6 @@ static int DB_task_data_retrieval_callback(void *data_from_DB, int argc, char **
 
     for (int i(0); i < argc; i++)
     {
-        //c->operator[](azColName[i]) = argv[i];
         c->insert(make_pair(azColName[i], argv[i]));
     }
 
@@ -248,7 +345,7 @@ void DatabaseHandler::DB_task_data_retrieval(int const& task_number, map<string,
     // request initialization
     m_sql_request = new string();
 
-    m_sql_request->append("SELECT * FROM TASK_TABLE WHERE NUMBER = ");
+    m_sql_request->append("SELECT * FROM TASKS WHERE NUMBER = ");
     m_sql_request->append(to_string(task_number));
     m_sql_request->append(";");
 
@@ -269,7 +366,7 @@ void DatabaseHandler::DB_task_data_retrieval(int const& task_number, map<string,
     m_sql_request = nullptr;
 }
 
-// Method to validate a task in the DB (PROCESSED = 1)
+// Method to validate a task in the DB (IS_PROCESSED = 1)
 void DatabaseHandler::DB_task_validation(string const& task_number)
 {
     // DB opening
@@ -278,8 +375,8 @@ void DatabaseHandler::DB_task_validation(string const& task_number)
     // request initialization
     m_sql_request = new string();
 
-    m_sql_request->append("UPDATE TASK_TABLE\n");
-    m_sql_request->append("SET PROCESSED = 1\n");
+    m_sql_request->append("UPDATE TASKS\n");
+    m_sql_request->append("SET IS_PROCESSED = 1\n");
     m_sql_request->append("WHERE\n");
     m_sql_request->append("    NUMBER = ");
     m_sql_request->append(task_number);
@@ -306,10 +403,179 @@ void DatabaseHandler::DB_task_validation(string const& task_number)
     m_sql_request = nullptr;
 }
 
-// DB_get_current_week_tasks_numbers method callback
-static int DB_get_current_week_tasks_numbers_callback(void *current_week_tasks, int argc, char **argv, char **azColName)
+
+// ... method callback
+static int DB_load_data_tasks_callback(void *data_extraction_from_DB, int argc, char **argv, char **azColName)
 {
-    vector<int> *c = (vector<int> *) current_week_tasks;
+    vector<map<string, string>> *c = (vector<map<string, string>> *) data_extraction_from_DB;
+    map<string, string> tmp_map;
+
+    for (int i(0); i < argc; i++)
+    {
+        tmp_map.insert(make_pair(azColName[i], argv[i]));
+    }
+
+    c->push_back(tmp_map);
+
+    return 0;
+}
+
+
+// Method to load the non dated tasks data
+void DatabaseHandler::DB_load_non_dated_tasks(vector<map<string, string>> *data_extraction_from_DB)
+{
+    // request initialization
+    m_sql_request = new string();
+
+    m_sql_request->append("SELECT NUMBER, NAME, IS_IMPORTANT, COMMENTS, IS_PROCESSED FROM TASKS\n");
+    m_sql_request->append("WHERE IS_DATED = 0\n");
+    m_sql_request->append("AND IS_PROCESSED = 0;");
+
+    // DB opening
+    DB_opening();
+
+    // DB insertion
+    m_rc = sqlite3_exec(m_database, m_sql_request->c_str(), DB_load_data_tasks_callback, (void*) data_extraction_from_DB, &m_zErrMsg);
+
+    if( m_rc != SQLITE_OK )
+    {
+        QMessageBox::critical(nullptr, "Récupération des tâches non datées dans la DB", "Problème !");
+        sqlite3_free(m_zErrMsg);
+    }
+
+    // DB closing
+    DB_closing();
+
+    // attributes cleaning
+    delete m_sql_request;
+    m_sql_request = nullptr;
+}
+
+
+// Method to load the normal tasks data
+void DatabaseHandler::DB_load_normal_tasks(string const& current_year, string const& current_week_number, vector<map<string, string>> *data_extraction_from_DB)
+{
+    // request initialization
+    m_sql_request = new string();
+
+    m_sql_request->append("SELECT NUMBER, NAME, IS_IMPORTANT, COMMENTS, IS_DATED, DAY, MONTH, YEAR, WEEK_NUMBER, REMINDER, WEEKS_BEFORE_TASK, IS_PROCESSED FROM TASKS\n");
+    m_sql_request->append("WHERE IS_DATED = 1\n");
+    m_sql_request->append("AND YEAR = ");
+    m_sql_request->append(current_year);
+    m_sql_request->append("\n");
+    m_sql_request->append("AND WEEK_NUMBER = ");
+    m_sql_request->append(current_week_number);
+    m_sql_request->append("\n");
+    m_sql_request->append("AND IS_PERIODIC = 0\n");
+    m_sql_request->append("AND IS_PROCESSED = 0;");
+
+    // DB opening
+    DB_opening();
+
+    // DB insertion
+    m_rc = sqlite3_exec(m_database, m_sql_request->c_str(), DB_load_data_tasks_callback, (void*) data_extraction_from_DB, &m_zErrMsg);
+
+    if( m_rc != SQLITE_OK )
+    {
+        QMessageBox::critical(nullptr, "Récupération des tâches normales dans la DB", "Problème !");
+        sqlite3_free(m_zErrMsg);
+    }
+
+    // DB closing
+    DB_closing();
+
+    // attributes cleaning
+    delete m_sql_request;
+    m_sql_request = nullptr;
+}
+
+
+// Method to load reminders prior data
+void DatabaseHandler::DB_prior_step_for_reminder_tasks_loading(std::vector<std::map<std::string, std::string>> *data_extraction_from_DB)
+{
+    // request initialization
+    m_sql_request = new string();
+
+    m_sql_request->append("SELECT NUMBER, DAY, MONTH, YEAR, WEEKS_BEFORE_TASK FROM TASKS\n");
+    m_sql_request->append("WHERE IS_DATED = 1\n");
+    m_sql_request->append("AND REMINDER = 1\n");
+    m_sql_request->append("AND IS_PERIODIC = 0\n");
+    m_sql_request->append("AND IS_PROCESSED = 0;");
+
+    // DB opening
+    DB_opening();
+
+    // DB insertion
+    m_rc = sqlite3_exec(m_database, m_sql_request->c_str(), DB_load_data_tasks_callback, (void*) data_extraction_from_DB, &m_zErrMsg);
+
+    if( m_rc != SQLITE_OK )
+    {
+        QMessageBox::critical(nullptr, "Récupération préalables des rappels dans la DB", "Problème !");
+        sqlite3_free(m_zErrMsg);
+    }
+
+    // DB closing
+    DB_closing();
+
+    // attributes cleaning
+    delete m_sql_request;
+    m_sql_request = nullptr;
+}
+
+
+// ...
+static int DB_load_reminder_data_task_callback(void *reminder_data_extraction_from_DB, int argc, char **argv, char **azColName)
+{
+    map<string, string> *c = (map<string, string> *) reminder_data_extraction_from_DB;
+
+    for (int i(0); i < argc; i++)
+    {
+        c->insert(make_pair(azColName[i], argv[i]));
+    }
+
+    return 0;
+}
+
+
+// ...
+void DatabaseHandler::DB_reminder_task_loading_from_reminder_task_number(string const&  reminder_task_number, map<string, string> *reminder_data_extraction_from_DB)
+{
+    // request initialization
+    m_sql_request = new string();
+
+    m_sql_request->append("SELECT NUMBER, NAME, DAY, MONTH, YEAR, COMMENTS, WEEKS_BEFORE_TASK FROM TASKS\n");
+    m_sql_request->append("WHERE NUMBER = ");
+    m_sql_request->append(reminder_task_number);
+    m_sql_request->append(";");
+
+    // DB opening
+    DB_opening();
+
+    // DB insertion
+    m_rc = sqlite3_exec(m_database, m_sql_request->c_str(), DB_load_reminder_data_task_callback, (void*) reminder_data_extraction_from_DB, &m_zErrMsg);
+
+    if( m_rc != SQLITE_OK )
+    {
+        QMessageBox::critical(nullptr, "Récupération des données des rappels dans la DB", "Problème !");
+        sqlite3_free(m_zErrMsg);
+    }
+
+    // DB closing
+    DB_closing();
+
+    // attributes cleaning
+    delete m_sql_request;
+    m_sql_request = nullptr;
+}
+
+
+// call back method callback to get tasks numbers, used in the following methods :
+// - DB_get_current_week_tasks_numbers
+// - DB_get_current_week_important_tasks_numbers
+// - DB_get_current_week_periodic_tasks_numbers
+static int DB_get_tasks_numbers_callback(void *tasks, int argc, char **argv, char **azColName)
+{
+    vector<int> *c = (vector<int> *) tasks;
 
     for (int i(0); i < argc; i++)
     {
@@ -338,7 +604,7 @@ void DatabaseHandler::DB_get_current_week_tasks_numbers(string const& current_ye
     m_sql_request->append(";");
 
     // Mark task as processed
-    m_rc = sqlite3_exec(m_database, (*m_sql_request).c_str(), DB_get_current_week_tasks_numbers_callback, (void*) current_week_tasks, &m_zErrMsg);
+    m_rc = sqlite3_exec(m_database, (*m_sql_request).c_str(), DB_get_tasks_numbers_callback, (void*) current_week_tasks, &m_zErrMsg);
 
     if( m_rc != SQLITE_OK )
     {
@@ -354,19 +620,6 @@ void DatabaseHandler::DB_get_current_week_tasks_numbers(string const& current_ye
     m_sql_request = nullptr;
 }
 
-// DB_get_current_week_tasks_numbers method callback
-static int DB_get_current_week_important_tasks_numbers_callback(void *current_week_important_tasks, int argc, char **argv, char **azColName)
-{
-    vector<int> *c = (vector<int> *) current_week_important_tasks;
-
-    for (int i(0); i < argc; i++)
-    {
-        c->push_back(stoi(argv[i]));
-    }
-
-    return 0;
-}
-
 //
 void DatabaseHandler::DB_get_current_week_important_tasks_numbers(std::string const& current_year, std::string const& current_week_number, std::vector<int> *current_week_important_tasks)
 {
@@ -376,7 +629,7 @@ void DatabaseHandler::DB_get_current_week_important_tasks_numbers(std::string co
     // request initialization
     m_sql_request = new string();
 
-    m_sql_request->append("SELECT NUMBER FROM TASK_TABLE\n");
+    m_sql_request->append("SELECT NUMBER FROM TASKS\n");
     m_sql_request->append("WHERE\n");
     m_sql_request->append("    YEAR = ");
     m_sql_request->append(current_year);
@@ -384,10 +637,10 @@ void DatabaseHandler::DB_get_current_week_important_tasks_numbers(std::string co
     m_sql_request->append("AND WEEK_NUMBER = ");
     m_sql_request->append(current_week_number);
     m_sql_request->append("\n");
-    m_sql_request->append("AND IMPORTANCE = 'Importante';");
+    m_sql_request->append("AND IS_IMPORTANT = 1;");
 
     // Mark task as processed
-    m_rc = sqlite3_exec(m_database, (*m_sql_request).c_str(), DB_get_current_week_important_tasks_numbers_callback, (void*) current_week_important_tasks, &m_zErrMsg);
+    m_rc = sqlite3_exec(m_database, (*m_sql_request).c_str(), DB_get_tasks_numbers_callback, (void*) current_week_important_tasks, &m_zErrMsg);
 
     if( m_rc != SQLITE_OK )
     {
@@ -446,19 +699,6 @@ void DatabaseHandler::DB_get_reminder_tasks_numbers(map<int, map<string, string>
     m_sql_request = nullptr;
 }
 
-// DB_get_current_week_tasks_numbers method callback
-static int DB_get_current_week_periodic_tasks_numbers_callback(void *current_week_periodic_tasks, int argc, char **argv, char **azColName)
-{
-    vector<int> *c = (vector<int> *) current_week_periodic_tasks;
-
-    for (int i(0); i < argc; i++)
-    {
-        c->push_back(stoi(argv[i]));
-    }
-
-    return 0;
-}
-
 //
 void DatabaseHandler::DB_get_current_week_periodic_tasks_numbers(vector<int> *current_week_periodic_tasks)
 {
@@ -471,7 +711,7 @@ void DatabaseHandler::DB_get_current_week_periodic_tasks_numbers(vector<int> *cu
     m_sql_request->append("SELECT NUMBER FROM TASK_TABLE WHERE PERIODIC_TASK = 1;");
 
     // ...
-    m_rc = sqlite3_exec(m_database, (*m_sql_request).c_str(), DB_get_current_week_periodic_tasks_numbers_callback, (void*) current_week_periodic_tasks, &m_zErrMsg);
+    m_rc = sqlite3_exec(m_database, (*m_sql_request).c_str(), DB_get_tasks_numbers_callback, (void*) current_week_periodic_tasks, &m_zErrMsg);
 
     if( m_rc != SQLITE_OK )
     {

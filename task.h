@@ -11,8 +11,6 @@ class Task
             Task(int const& task_number, QString const& task_name, QString const& task_importance, QDate const& task_date, bool const& reminder, int const& nbr_weeks_before_task, QString const& comments);
             virtual ~Task();
 
-        //int define_task_number();
-
         // Getters
             QString get_task_name() const;
             QString get_task_importance() const;

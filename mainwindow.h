@@ -36,6 +36,13 @@ class MainWindow : public QMainWindow
         void actions_connection() const;
         void current_week_tasks_update();
         void calendar_week_update();
+
+        // tmp - début
+        void tasks_update();
+        void non_dated_tasks_update();
+        void calendar_tasks_update();
+        // tmp - fin
+
         void days_spacer_addition();
         void current_week_tasks_cleaning();
         void important_tasks_update();
@@ -47,10 +54,10 @@ class MainWindow : public QMainWindow
     public slots:
         void task_addition();
         void task_modification();
-        void processed_task();
+        //void processed_task();
         //void showEvent(QShowEvent *ev);
-        void go_to_previous_week();
-        void go_to_next_week();
+        //void go_to_previous_week();
+        //void go_to_next_week();
         void change_task_number_and_selected_button(int const& task_number);
         void change_task_number(int const& task_number);
         void connect_task_button_signals();
@@ -60,11 +67,8 @@ class MainWindow : public QMainWindow
         TaskManager *tm;
         IHMGestionDesTaches *ihm_gdt;
         int m_choix_gdt;
-        int *nbr_wk_bfr_task;
-        int *m_task_periodicity;
         std::map<std::string, std::string> *m_data_from_DB;
         QDate *m_current_date;
-        int *m_current_week_number;
         std::vector<int> *m_current_week_tasks;
         std::vector<int> *m_current_week_periodic_tasks;
         std::map<int, QString> i_to_s_month;

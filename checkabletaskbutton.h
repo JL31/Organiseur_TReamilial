@@ -1,19 +1,19 @@
-#ifndef CALENDARTASKBUTTON_H
-#define CALENDARTASKBUTTON_H
+#ifndef CHECKABLETASKBUTTON_H
+#define CHECKABLETASKBUTTON_H
 
 #include <QObject>
 
 #include "abstracttaskbutton.h"
 
-class CalendarTaskButton : public AbstractTaskButton
+class CheckableTaskButton : public AbstractTaskButton
 {
     Q_OBJECT
 
     public:
         // Constructor and destructor
-            CalendarTaskButton(QString const& button_text,
-                               NonDatedTask const& task);
-            virtual ~CalendarTaskButton();
+            CheckableTaskButton(QString const& button_text,
+                                NonDatedTask const& task);
+            virtual ~CheckableTaskButton();
 
         // Methods
             void set_button_color();
@@ -31,4 +31,4 @@ class CalendarTaskButton : public AbstractTaskButton
         // Attributes
 };
 
-#endif // CALENDARTASKBUTTON_H
+#endif // CHECKABLETASKBUTTON_H

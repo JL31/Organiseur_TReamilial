@@ -17,7 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     abstracttaskbutton.cpp \
-    calendartaskbutton.cpp \
+    checkabletaskbutton.cpp \
     databasehandler.cpp \
     ihm_gestion_des_taches.cpp \
     importanttaskbutton.cpp \
@@ -34,7 +34,7 @@ SOURCES += \
 
 HEADERS += \
     abstracttaskbutton.h \
-    calendartaskbutton.h \
+    checkabletaskbutton.h \
     databasehandler.h \
     ihm_gestion_des_taches.h \
     importanttaskbutton.h \

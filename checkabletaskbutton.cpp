@@ -1,8 +1,8 @@
-#include "calendartaskbutton.h"
+#include "checkabletaskbutton.h"
 
 // Constructor
-CalendarTaskButton::CalendarTaskButton(QString const& button_text,
-                                       NonDatedTask const& task) : AbstractTaskButton(button_text, task)
+CheckableTaskButton::CheckableTaskButton(QString const& button_text,
+                                         NonDatedTask const& task) : AbstractTaskButton(button_text, task)
 {
     set_button_color();
     set_checkable_state();
@@ -12,12 +12,12 @@ CalendarTaskButton::CalendarTaskButton(QString const& button_text,
 
 
 // Destructor
-CalendarTaskButton::~CalendarTaskButton()
+CheckableTaskButton::~CheckableTaskButton()
 {}
 
 
 // SLOT
-void CalendarTaskButton::emit_specific_signal(bool const& button_state)
+void CheckableTaskButton::emit_specific_signal(bool const& button_state)
 {
     if ( button_state )
     {
@@ -31,7 +31,7 @@ void CalendarTaskButton::emit_specific_signal(bool const& button_state)
 
 
 // Method that enables to change the color button (notably is task is Important)
-void CalendarTaskButton::set_button_color()
+void CheckableTaskButton::set_button_color()
 {
     if ( m_task->get_is_important() )
     {
@@ -41,7 +41,7 @@ void CalendarTaskButton::set_button_color()
 
 
 // Method that enables to define if the current button can be checkable or not
-void CalendarTaskButton::set_checkable_state()
+void CheckableTaskButton::set_checkable_state()
 {
     this->setCheckable(true);
 }

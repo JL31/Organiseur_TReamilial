@@ -79,6 +79,7 @@ class MainWindow : public QMainWindow
         QVBoxLayout *m_layout_taches_vendredi;
         QVBoxLayout *m_layout_taches_samedi;
         QVBoxLayout *m_layout_taches_dimanche;
+        QVBoxLayout *m_non_dated_tasks_layout;
         std::vector<QScrollArea*> *m_sa_list;
         int *m_selected_task_number;
 };

@@ -3,6 +3,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "ihm_gestion_des_taches.h"
+#include "calendartaskbutton.h"
+#include "importanttaskbutton.h"
+#include "remindertaskbutton.h"
 
 using namespace std;
 
@@ -174,8 +177,8 @@ void MainWindow::calendar_week_update()
 // Method to update the tasks of the several parts of the HMI
 void MainWindow::tasks_update()
 {
-    non_dated_tasks_update();
-    important_tasks_update();
+    //non_dated_tasks_update();
+    //important_tasks_update();
     calendar_tasks_update();
 }
 
@@ -201,47 +204,45 @@ void MainWindow::calendar_tasks_update()
     // calendar tasks part prior cleaning
 
     // Création des tâches (i.e. les boutons)
-    map<int, NormalTask*> normal_task_list = tm->get_normal_tasks_list();
-
-    for (auto it = tm->get_normal_tasks_list().begin(); it != normal_task_list.end(); it++)
+    for (auto it = tm->get_normal_tasks_list().begin(); it != tm->get_normal_tasks_list().end(); it++)
     {
-        int *current_task_day_of_week = new int(it->second->get_task_date().dayOfWeek());
+        int *current_task_day_of_week = new int(it->second->get_date().dayOfWeek());
 
         switch (*current_task_day_of_week)
         {
             case 1:
 
-                m_layout_taches_lundi->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                m_layout_taches_lundi->addWidget(new CalendarTaskButton(it->second->get_name(), *(it->second)));
                 break;
 
             case 2:
 
-                m_layout_taches_mardi->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                m_layout_taches_mardi->addWidget(new CalendarTaskButton(it->second->get_name(), *(it->second)));
                 break;
 
             case 3:
 
-                m_layout_taches_mercredi->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                m_layout_taches_mercredi->addWidget(new CalendarTaskButton(it->second->get_name(), *(it->second)));
                 break;
 
             case 4:
 
-                m_layout_taches_jeudi->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                m_layout_taches_jeudi->addWidget(new CalendarTaskButton(it->second->get_name(), *(it->second)));
                 break;
 
             case 5:
 
-                m_layout_taches_vendredi->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                m_layout_taches_vendredi->addWidget(new CalendarTaskButton(it->second->get_name(), *(it->second)));
                 break;
 
             case 6:
 
-                m_layout_taches_samedi->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                m_layout_taches_samedi->addWidget(new CalendarTaskButton(it->second->get_name(), *(it->second)));
                 break;
 
             case 7:
 
-                m_layout_taches_dimanche->addWidget(new TaskButton(it->second->get_task_name(), it->first, it->second->get_task_importance(), it->second->get_comments(), it->second->get_reminder_state(), true, this));
+                m_layout_taches_dimanche->addWidget(new CalendarTaskButton(it->second->get_name(), *(it->second)));
                 break;
         }
 
@@ -253,7 +254,7 @@ void MainWindow::calendar_tasks_update()
     connect_task_button_signals();
 
     // ...
-    reminder_tasks_update();
+    // reminder_tasks_update();
 
     // ajout d'un spacer dans chacune des group box des différents jours
     days_spacer_addition();
@@ -338,19 +339,23 @@ void MainWindow::current_week_tasks_update()
 //
 void MainWindow::connect_task_button_signals()
 {
-    QList<TaskButton *> *task_button_list = new QList<TaskButton *>();
+    // variable initialization
+    QList<CalendarTaskButton *> *task_button_list = new QList<CalendarTaskButton *>();
 
-    for (vector<QScrollArea *>::iterator sa_list_iterator = m_sa_list->begin(); sa_list_iterator != m_sa_list->end(); sa_list_iterator++)
+    // retrieval of the CalendarTaskButton instances
+    for (auto it = m_sa_list->begin(); it != m_sa_list->end(); it++)
     {
-        task_button_list->append((*sa_list_iterator)->findChildren<TaskButton *>());
+        task_button_list->append((*it)->findChildren<CalendarTaskButton *>());
     }
 
-    for (QList<TaskButton *>::iterator tb_iterator = task_button_list->begin(); tb_iterator != task_button_list->end(); tb_iterator++)
+    // connection of the CalendarTaskButton instances signals to the current class slots
+    for (auto it = task_button_list->begin(); it != task_button_list->end(); it++)
     {
-        connect(*tb_iterator, SIGNAL(button_state_and_task_number(int)), this, SLOT(change_task_number_and_selected_button(int)));
-        connect(*tb_iterator, SIGNAL(button_task_number(int)), this, SLOT(change_task_number(int)));
+        connect(*it, SIGNAL(button_state_and_task_number(int)), this, SLOT(change_task_number_and_selected_button(int)));
+        connect(*it, SIGNAL(button_task_number(int)), this, SLOT(change_task_number(int)));
     }
 
+    // variable cleaning
     delete task_button_list;
     task_button_list = nullptr;
 }
@@ -358,18 +363,18 @@ void MainWindow::connect_task_button_signals()
 //
 void MainWindow::change_task_number_and_selected_button(int const& task_number)
 {
-    QList<TaskButton *> *task_button_list = new QList<TaskButton *>();
+    QList<CalendarTaskButton *> *task_button_list = new QList<CalendarTaskButton *>();
 
-    for (vector<QScrollArea *>::iterator sa_list_iterator = m_sa_list->begin(); sa_list_iterator != m_sa_list->end(); sa_list_iterator++)
+    for (auto it = m_sa_list->begin(); it != m_sa_list->end(); it++)
     {
-        task_button_list->append((*sa_list_iterator)->findChildren<TaskButton *>());
+        task_button_list->append((*it)->findChildren<CalendarTaskButton *>());
     }
 
-    for (QList<TaskButton *>::iterator tb_iterator = task_button_list->begin(); tb_iterator != task_button_list->end(); tb_iterator++)
+    for (auto it = task_button_list->begin(); it != task_button_list->end(); it++)
     {
-        if ( (*tb_iterator)->get_task_button_task_number() != task_number and (*tb_iterator)->isChecked() )
+        if ( (*it)->get_task_number() != task_number and (*it)->isChecked() )
         {
-            (*tb_iterator)->setChecked(false);
+            (*it)->setChecked(false);
         }
     }
 
@@ -547,6 +552,9 @@ void MainWindow::task_addition()
 // Code du SLOT de modification de tâche
 void MainWindow::task_modification()
 {
+    // prior cleaning
+    m_data_from_DB->clear();
+
     // Récupération des infos de la tâche sélectionnée
     tm->data_retrieval(*m_selected_task_number, m_data_from_DB);
 

@@ -172,8 +172,6 @@ bool TaskButton::get_task_button_is_periodic_task() const
 //
 void TaskButton::set_button_color(QString const& task_importance, bool const& reminder_state, bool const& panel_task)
 {
-    QDate *tmp_date = new QDate(QDate::currentDate());
-
     if ( reminder_state and not this->isCheckable() and not panel_task )
     {
         this->setStyleSheet("background-color:rgb(0, 150, 220)");
@@ -182,7 +180,4 @@ void TaskButton::set_button_color(QString const& task_importance, bool const& re
     {
         this->setStyleSheet("background-color:orange");
     }
-
-    delete tmp_date;
-    tmp_date = nullptr;
 }

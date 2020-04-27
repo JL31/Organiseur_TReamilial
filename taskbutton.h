@@ -18,7 +18,7 @@ class TaskButton : public QPushButton
 
     signals:
 
-        void button_state_and_task_number(int const & task_number);
+        void button_state_and_task_number(int const & m_task_number);
         void button_task_number(int const& m_task_number);
 
     protected:

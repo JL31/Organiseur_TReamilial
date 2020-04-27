@@ -63,7 +63,7 @@ void IHMGestionDesTaches::dialog_initialization_for_task_modification(map<string
 
     ui->le_task_name->setText(QString::fromStdString((*data_from_DB)["NAME"]));
 
-    if ( QString::fromStdString((*data_from_DB)["IMPORTANCE"]) == 1 )
+    if ( stoi((*data_from_DB)["IS_IMPORTANT"]) == 1 )
     {
         ui->cb_important_task->setChecked(true);
     }
@@ -72,20 +72,18 @@ void IHMGestionDesTaches::dialog_initialization_for_task_modification(map<string
         ui->cb_important_task->setChecked(false);
     }
 
-    if ( QString::fromStdString((*data_from_DB)["IS_DATED"]) == 1 )
+    if ( stoi((*data_from_DB)["IS_DATED"]) == 1 )
     {
         ui->gb_dated_task->setChecked(true);
 
         QDate *date;
-        QString *time_format = new QString("dd/MM/yyyy");
-        date = new QDate(QDate::fromString(QString::fromStdString((*data_from_DB)["DATE"]), *time_format));
+        date = new QDate(stoi((*data_from_DB)["YEAR"]),
+                         stoi((*data_from_DB)["MONTH"]),
+                         stoi((*data_from_DB)["DAY"]));
         ui->de_task_date->setDate(*date);
 
         delete date;
-        delete time_format;
-
         date = nullptr;
-        time_format = nullptr;
     }
     else
     {

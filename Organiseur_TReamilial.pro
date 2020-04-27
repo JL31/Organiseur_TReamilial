@@ -16,8 +16,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    abstracttaskbutton.cpp \
+    calendartaskbutton.cpp \
     databasehandler.cpp \
     ihm_gestion_des_taches.cpp \
+    importanttaskbutton.cpp \
     main.cpp \
     mainwindow.cpp \
     nondatedtask.cpp \
@@ -25,18 +28,23 @@ SOURCES += \
     periodicsubtask.cpp \
     periodictask.cpp \
     reminder.cpp \
+    remindertaskbutton.cpp \
     taskbutton.cpp \
     taskmanager.cpp
 
 HEADERS += \
+    abstracttaskbutton.h \
+    calendartaskbutton.h \
     databasehandler.h \
     ihm_gestion_des_taches.h \
+    importanttaskbutton.h \
     mainwindow.h \
     nondatedtask.h \
     normaltask.h \
     periodicsubtask.h \
     periodictask.h \
     reminder.h \
+    remindertaskbutton.h \
     taskbutton.h \
     taskmanager.h
 

@@ -2,6 +2,7 @@
 #define NORMALTASK_H
 
 #include "nondatedtask.h"
+#include "reminder.h"
 
 class NormalTask : public NonDatedTask
 {
@@ -30,7 +31,6 @@ class NormalTask : public NonDatedTask
             QDate *m_date;
             bool *m_reminder;
             int *m_weeks_before_task;
-
 };
 
 #endif // NORMALTASK_H

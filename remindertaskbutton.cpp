@@ -1,11 +1,14 @@
 #include "remindertaskbutton.h"
 
+// Constructor and destructor
+// --------------------------
+
 // Constructor
 ReminderTaskButton::ReminderTaskButton(QString const& button_text,
-                                       NonDatedTask const& task,
-                                       Reminder const& reminder_task) : AbstractTaskButton(button_text, task),
-                                       m_reminder_task(new Reminder(reminder_task))
+                                       NonDatedTask *task,
+                                       Reminder *reminder_task) : AbstractTaskButton(button_text, task, reminder_task)
 {
+    adapt_button_text();
     set_button_color();
     set_checkable_state();
 }
@@ -13,13 +16,10 @@ ReminderTaskButton::ReminderTaskButton(QString const& button_text,
 
 // Desctructor
 ReminderTaskButton::~ReminderTaskButton()
-{
-    delete m_reminder_task;
-    m_reminder_task = nullptr;
-}
+{}
 
 
-// // Method that enables to modify the button text
+// Method that enables to modify the button text
 void ReminderTaskButton::adapt_button_text()
 {
     // variable initialization
@@ -28,13 +28,13 @@ void ReminderTaskButton::adapt_button_text()
     // definition of the button text
     new_texte->append("Rappel de la\n");
     new_texte->append("tâche n°");
-    new_texte->append(QString::number(m_task->get_number()));
+    new_texte->append(QString::number(m_reminder->get_number()));
     new_texte->append("\n\n");
     new_texte->append("Prévue dans\n");
-    new_texte->append(QString::number(m_reminder_task->get_weeks_before_task()));
+    new_texte->append(QString::number(m_reminder->get_weeks_before_task()));
     new_texte->append(" semaine");
 
-    if ( m_reminder_task->get_weeks_before_task() > 1)
+    if ( m_reminder->get_weeks_before_task() > 1)
     {
         new_texte->append("s");
     }

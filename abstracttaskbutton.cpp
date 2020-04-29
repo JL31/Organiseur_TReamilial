@@ -1,15 +1,19 @@
 #include "abstracttaskbutton.h"
 
+// Constructor and destructor
+// --------------------------
+
 // Constructor
 AbstractTaskButton::AbstractTaskButton(QString const& button_text,
-                                       NonDatedTask const& task) : m_button_text(new QString(button_text)),
-                                                                   m_task(new NonDatedTask(task))
+                                       NonDatedTask *task,
+                                       Reminder *reminder) : m_button_text(new QString(button_text)),
+                                                             m_task(task),
+                                                             m_reminder(reminder)
 {
     // Provisoire - début
     this->setMinimumSize(85, 85);
     this->setMaximumSize(85, 85);
     // Provisoire - fin
-    adapt_button_text();
 }
 
 
@@ -18,49 +22,83 @@ AbstractTaskButton::~AbstractTaskButton()
 {
     delete m_button_text;
     delete m_task;
+    delete m_reminder;
 
     m_button_text = nullptr;
     m_task = nullptr;
+    m_reminder = nullptr;
 }
 
 
 // Getters
+// -------
+
 int AbstractTaskButton::get_task_number()
 {
     return m_task->get_number();
 }
 
 
+// Methods
+// -------
+
 // Action linked to the double click on the button
 void AbstractTaskButton::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    QDialog *m_dialog_display_selected_task_data = new QDialog(this);
-    m_dialog_display_selected_task_data->setWindowTitle("Tâche n°" + QString::number(m_task->get_number()));
+    QDialog *dialog_display_selected_task_data = new QDialog(this);
+    QString *window_title = new QString();
+    if ( m_task == nullptr )
+    {
+        *window_title = QString::number(m_reminder->get_number());
+    }
+    else
+    {
+        *window_title = QString::number(m_task->get_number());
+    }
+    dialog_display_selected_task_data->setWindowTitle("Tâche n°" + *window_title);
 
-    QLabel *m_l_task_name = new QLabel("Nom de la tâche");
-    QLineEdit *m_le_task_name = new QLineEdit(m_task->get_name());
-    m_le_task_name->setReadOnly(true);
-    QHBoxLayout *m_task_name_layout = new QHBoxLayout();
-    m_task_name_layout->addWidget(m_l_task_name);
-    m_task_name_layout->addWidget(m_le_task_name);
+    QLabel *l_task_name = new QLabel("Nom de la tâche");
+    QString *task_name = new QString();
+    if ( m_task == nullptr )
+    {
+        *task_name = m_reminder->get_name();
+    }
+    else
+    {
+        *task_name = m_task->get_name();
+    }
+    QLineEdit *le_task_name = new QLineEdit(*task_name);
+    le_task_name->setReadOnly(true);
+    QHBoxLayout *task_name_layout = new QHBoxLayout();
+    task_name_layout->addWidget(l_task_name);
+    task_name_layout->addWidget(le_task_name);
 
-    QLabel *m_l_task_comments = new QLabel("Commentaires");
-    m_l_task_comments->setFixedWidth(m_l_task_name->fontMetrics().boundingRect(m_l_task_name->text()).width());
-    m_l_task_comments->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-    QTextEdit *m_te_task_name = new QTextEdit(m_task->get_comments());
-    m_te_task_name->setReadOnly(true);
-    QHBoxLayout *m_task_comments_layout = new QHBoxLayout();
-    m_task_comments_layout->addWidget(m_l_task_comments);
-    m_task_comments_layout->addWidget(m_te_task_name);
+    QLabel *l_task_comments = new QLabel("Commentaires");
+    l_task_comments->setFixedWidth(l_task_name->fontMetrics().boundingRect(l_task_name->text()).width());
+    l_task_comments->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    QString *task_comments = new QString();
+    if ( m_task == nullptr )
+    {
+        *task_comments = m_reminder->get_comments();
+    }
+    else
+    {
+        *task_comments = m_task->get_comments();
+    }
+    QTextEdit *te_task_name = new QTextEdit(*task_comments);
+    te_task_name->setReadOnly(true);
+    QHBoxLayout *task_comments_layout = new QHBoxLayout();
+    task_comments_layout->addWidget(l_task_comments);
+    task_comments_layout->addWidget(te_task_name);
 
-    QVBoxLayout *m_dialog_layout = new QVBoxLayout();
-    m_dialog_layout->addLayout(m_task_name_layout);
-    m_dialog_layout->addLayout(m_task_comments_layout);
-    QPushButton *m_close_button = new QPushButton("Fermer la fenêtre");
-    m_dialog_layout->addWidget(m_close_button);
-    connect(m_close_button, SIGNAL(clicked()), m_dialog_display_selected_task_data, SLOT(accept()));
+    QVBoxLayout *dialog_layout = new QVBoxLayout();
+    dialog_layout->addLayout(task_name_layout);
+    dialog_layout->addLayout(task_comments_layout);
+    QPushButton *close_button = new QPushButton("Fermer la fenêtre");
+    dialog_layout->addWidget(close_button);
+    connect(close_button, SIGNAL(clicked()), dialog_display_selected_task_data, SLOT(accept()));
 
-    m_dialog_display_selected_task_data->setLayout(m_dialog_layout);
+    dialog_display_selected_task_data->setLayout(dialog_layout);
 
     // pour éviter que la fenêtre n'hérite de la couleur de la fenêtre parente (dans le cas d'une tâche Importante ou d'un rappel)
     //
@@ -68,29 +106,35 @@ void AbstractTaskButton::mouseDoubleClickEvent(QMouseEvent *event)
     // Encore utile avec cette nouvelle architecture ?
     //
     //
-    m_dialog_display_selected_task_data->setStyleSheet("background-color:None");
+    dialog_display_selected_task_data->setStyleSheet("background-color:None");
 
-    m_dialog_display_selected_task_data->exec();
+    dialog_display_selected_task_data->exec();
 
-    delete m_l_task_name;
-    delete m_le_task_name;
-    delete m_task_name_layout;
-    delete m_l_task_comments;
-    delete m_te_task_name;
-    delete m_task_comments_layout;
-    delete m_close_button;
-    delete m_dialog_layout;
-    delete m_dialog_display_selected_task_data;
+    delete l_task_name;
+    delete task_name;
+    delete le_task_name;
+    delete task_name_layout;
+    delete l_task_comments;
+    delete task_comments;
+    delete te_task_name;
+    delete task_comments_layout;
+    delete close_button;
+    delete dialog_layout;
+    delete window_title;
+    delete dialog_display_selected_task_data;
 
-    m_l_task_name = nullptr;
-    m_le_task_name = nullptr;
-    m_task_name_layout = nullptr;
-    m_l_task_comments = nullptr;
-    m_te_task_name = nullptr;
-    m_task_comments_layout = nullptr;
-    m_close_button = nullptr;
-    m_dialog_layout = nullptr;
-    m_dialog_display_selected_task_data = nullptr;
+    l_task_name = nullptr;
+    task_name = nullptr;
+    le_task_name = nullptr;
+    task_name_layout = nullptr;
+    l_task_comments = nullptr;
+    task_comments = nullptr;
+    te_task_name = nullptr;
+    task_comments_layout = nullptr;
+    close_button = nullptr;
+    dialog_layout = nullptr;
+    window_title = nullptr;
+    dialog_display_selected_task_data = nullptr;
 }
 
 

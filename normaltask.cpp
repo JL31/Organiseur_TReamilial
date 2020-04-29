@@ -1,4 +1,5 @@
 #include "normaltask.h"
+#include "reminder.h"
 
 // Constructor and destructor
 // --------------------------
@@ -33,8 +34,10 @@ NormalTask::~NormalTask()
     m_weeks_before_task = nullptr;
 }
 
+
 // Getters
 // -------
+
 bool NormalTask::get_is_dated() const
 {
     return *m_is_dated;

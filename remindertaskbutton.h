@@ -2,15 +2,14 @@
 #define REMINDERTASKBUTTON_H
 
 #include "abstracttaskbutton.h"
-#include "reminder.h"
 
-class ReminderTaskButton  : public AbstractTaskButton
+class ReminderTaskButton : public AbstractTaskButton
 {
     public:
         // Constructor and destructor
             ReminderTaskButton(QString const& button_text,
-                               NonDatedTask const& task,
-                               Reminder const& reminder_task);
+                               NonDatedTask *task = nullptr,
+                               Reminder *reminder = nullptr);
             virtual ~ReminderTaskButton();
 
         // Methods
@@ -20,7 +19,6 @@ class ReminderTaskButton  : public AbstractTaskButton
 
     protected:
          // Attributes
-            Reminder *m_reminder_task;
 };
 
 #endif // REMINDERTASKBUTTON_H

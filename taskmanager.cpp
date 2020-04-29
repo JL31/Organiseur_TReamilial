@@ -10,7 +10,7 @@ TaskManager::TaskManager() :
                              m_normal_tasks_list(new map<int, NormalTask*>()),
                              m_periodic_tasks_list(new map<int, PeriodicTask*>()),
                              m_reminder_tasks_list(new vector<Reminder*>()),
-                             m_important_tasks_list(new vector<NormalTask*>()),
+                             m_important_tasks_list(new vector<NonDatedTask*>()),
                              m_number_of_tasks(new int(0)),
                              m_db_handler(new DatabaseHandler())
 {}
@@ -238,7 +238,7 @@ void TaskManager::load_reminders_list(int const& current_year, int const& curren
         // reminder data retrieval into database
         m_db_handler->DB_reminder_task_loading_from_reminder_task_number(to_string(*it), m_reminder_data_extraction_from_DB);
 
-        // ...
+        // creation of a Reminder instance and addition of this instance to the reminder tasks list attribute
         m_reminder_tasks_list->push_back(new Reminder(stoi((*m_reminder_data_extraction_from_DB)["NUMBER"]),
                                                      QString::fromStdString((*m_reminder_data_extraction_from_DB)["NAME"]),
                                                      QString::fromStdString((*m_reminder_data_extraction_from_DB)["COMMENTS"]),
@@ -276,6 +276,15 @@ void TaskManager::load_important_tasks_list(int const& current_year, int const& 
             m_important_tasks_list->push_back(it->second);
         }
     }
+
+    // important tasks list filling-in with important non dated tasks
+    for (auto it = m_non_dated_tasks_list->begin(); it != m_non_dated_tasks_list->end(); it++)
+    {
+        if ( it->second->get_is_important() )
+        {
+            m_important_tasks_list->push_back(it->second);
+        }
+    }
 }
 
 
@@ -301,7 +310,7 @@ const vector<Reminder*>& TaskManager::get_reminder_tasks_list() const
 
 
 // Getter of the important tasks list
-const vector<NormalTask*>& TaskManager::get_important_tasks_list() const
+const vector<NonDatedTask*>& TaskManager::get_important_tasks_list() const
 {
     return *m_important_tasks_list;
 }

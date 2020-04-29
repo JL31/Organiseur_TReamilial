@@ -1,9 +1,14 @@
 #include "importanttaskbutton.h"
 
+// Constructor and destructor
+// --------------------------
+
 // Constructor
 ImportantTaskButton::ImportantTaskButton(QString const& button_text,
-                                         NonDatedTask const& task) : AbstractTaskButton(button_text, task)
+                                         NonDatedTask *task,
+                                         Reminder *reminder) : AbstractTaskButton(button_text, task, reminder)
 {
+    adapt_button_text();
     set_button_color();
     set_checkable_state();
 }
@@ -13,6 +18,9 @@ ImportantTaskButton::ImportantTaskButton(QString const& button_text,
 ImportantTaskButton::~ImportantTaskButton()
 {}
 
+
+// Methods
+// -------
 
 // Method that enables to change the color button
 void ImportantTaskButton::set_button_color()

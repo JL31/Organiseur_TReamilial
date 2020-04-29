@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //
     // TMP - début
     //
-    *m_current_date = m_current_date->addDays(-1);
+    *m_current_date = m_current_date->addDays(-3);
     //
     // TMP - fin
     //
@@ -216,11 +216,14 @@ void MainWindow::non_dated_tasks_update()
     // non dated tasks part prior cleaning
     // ...
 
-    // Création des tâches (i.e. les boutons)
+    // tasks creation (i.e. the buttons)
     for (auto it = tm->get_non_dated_tasks_list().begin(); it != tm->get_non_dated_tasks_list().end(); it++)
     {
-        m_non_dated_tasks_layout->addWidget(new CheckableTaskButton(it->second->get_name(), *(it->second)));
+        m_non_dated_tasks_layout->addWidget(new CheckableTaskButton(it->second->get_name(), it->second));
     }
+
+    // spacer addition
+    m_non_dated_tasks_layout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
 }
 
 
@@ -230,13 +233,13 @@ void MainWindow::important_tasks_update()
     // important tasks part prior cleaning
     // ...
 
-    // Création des tâches (i.e. les boutons)
+    // tasks creation (i.e. the buttons
     for (auto it = tm->get_important_tasks_list().begin(); it != tm->get_important_tasks_list().end(); it++)
     {
-        ui->gb_important_tasks_layout->addWidget(new ImportantTaskButton((*it)->get_name(), *(*it)));
+        ui->gb_important_tasks_layout->addWidget(new ImportantTaskButton((*it)->get_name(), *it));
     }
 
-    // Spacer addition
+    // spacer addition
     ui->gb_important_tasks_layout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum));
 }
 
@@ -247,61 +250,108 @@ void MainWindow::calendar_tasks_update()
     // calendar tasks part prior cleaning
     // ...
 
-    // Création des tâches (i.e. les boutons)
+    // tasks creation (i.e. the buttons)
     for (auto it = tm->get_normal_tasks_list().begin(); it != tm->get_normal_tasks_list().end(); it++)
     {
-        int *current_task_day_of_week = new int(it->second->get_date().dayOfWeek());
+        // variable initialization
+        int current_task_day_of_week = int(it->second->get_date().dayOfWeek());
 
-        switch (*current_task_day_of_week)
+        // switch on the day of the week to create the task button on the appropriate day
+        switch (current_task_day_of_week)
         {
             case 1:
 
-                m_layout_taches_lundi->addWidget(new CheckableTaskButton(it->second->get_name(), *(it->second)));
+                m_layout_taches_lundi->addWidget(new CheckableTaskButton(it->second->get_name(), it->second));
                 break;
 
             case 2:
 
-                m_layout_taches_mardi->addWidget(new CheckableTaskButton(it->second->get_name(), *(it->second)));
+                m_layout_taches_mardi->addWidget(new CheckableTaskButton(it->second->get_name(), it->second));
                 break;
 
             case 3:
 
-                m_layout_taches_mercredi->addWidget(new CheckableTaskButton(it->second->get_name(), *(it->second)));
+                m_layout_taches_mercredi->addWidget(new CheckableTaskButton(it->second->get_name(), it->second));
                 break;
 
             case 4:
 
-                m_layout_taches_jeudi->addWidget(new CheckableTaskButton(it->second->get_name(), *(it->second)));
+                m_layout_taches_jeudi->addWidget(new CheckableTaskButton(it->second->get_name(), it->second));
                 break;
 
             case 5:
 
-                m_layout_taches_vendredi->addWidget(new CheckableTaskButton(it->second->get_name(), *(it->second)));
+                m_layout_taches_vendredi->addWidget(new CheckableTaskButton(it->second->get_name(), it->second));
                 break;
 
             case 6:
 
-                m_layout_taches_samedi->addWidget(new CheckableTaskButton(it->second->get_name(), *(it->second)));
+                m_layout_taches_samedi->addWidget(new CheckableTaskButton(it->second->get_name(), it->second));
                 break;
 
             case 7:
 
-                m_layout_taches_dimanche->addWidget(new CheckableTaskButton(it->second->get_name(), *(it->second)));
+                m_layout_taches_dimanche->addWidget(new CheckableTaskButton(it->second->get_name(), it->second));
                 break;
         }
-
-        delete current_task_day_of_week;
-        current_task_day_of_week = nullptr;
     }
 
-    // Connect the TaskButton signals to Mainwindow slots
-    // connect_task_button_signals();
+    // creation of the reminder tasks (i.e. the buttons)
+    reminder_tasks_update();
 
-    // ...
-    // reminder_tasks_update();
-
-    // ajout d'un spacer dans chacune des group box des différents jours
+    // spacers addition
     days_spacer_addition();
+}
+
+
+// Method to update the reminder tasks of the calendar tasks part of the HMI
+void MainWindow::reminder_tasks_update()
+{
+    // tasks creation (i.e. the buttons)
+    for ( auto element : tm->get_reminder_tasks_list() )
+    {
+        // variable initialization
+        int current_task_day_of_week = int(element->get_date().dayOfWeek());
+
+        // switch on the day of the week to create the reminder task button on the appropriate day
+        switch (current_task_day_of_week)
+        {
+            case 1:
+
+                m_layout_taches_lundi->addWidget(new ReminderTaskButton(element->get_name(), nullptr, element));
+                break;
+
+            case 2:
+
+                m_layout_taches_mardi->addWidget(new ReminderTaskButton(element->get_name(), nullptr, element));
+                break;
+
+            case 3:
+
+                m_layout_taches_mercredi->addWidget(new ReminderTaskButton(element->get_name(), nullptr, element));
+                break;
+
+            case 4:
+
+                m_layout_taches_jeudi->addWidget(new ReminderTaskButton(element->get_name(), nullptr, element));
+                break;
+
+            case 5:
+
+                m_layout_taches_vendredi->addWidget(new ReminderTaskButton(element->get_name(), nullptr, element));
+                break;
+
+            case 6:
+
+                m_layout_taches_samedi->addWidget(new ReminderTaskButton(element->get_name(), nullptr, element));
+                break;
+
+            case 7:
+
+                m_layout_taches_dimanche->addWidget(new ReminderTaskButton(element->get_name(), nullptr, element));
+                break;
+        }
+    }
 }
 
 
@@ -384,42 +434,38 @@ void MainWindow::current_week_tasks_update()
 void MainWindow::connect_task_button_signals()
 {
     // variable initialization
-    QList<CheckableTaskButton *> *task_button_list = new QList<CheckableTaskButton *>();
+    QList<CheckableTaskButton *> task_button_list = QList<CheckableTaskButton *>();
 
     // retrieval of the CheckableTaskButton instances of the calendar part of the HMI
     for (auto it = m_sa_list->begin(); it != m_sa_list->end(); it++)
     {
-        task_button_list->append((*it)->findChildren<CheckableTaskButton *>());
+        task_button_list.append((*it)->findChildren<CheckableTaskButton *>());
     }
 
     // retrieval of the CheckableTaskButton instances of the non dated tasks part of the HMI
     //task_button_list->append(ui->sa_non_dated_tasks->findChildren<CheckableTaskButton *>());
 
     // connection of the CheckableTaskButton instances signals to the current class slots
-    for (auto it = task_button_list->begin(); it != task_button_list->end(); it++)
+    for (auto it = task_button_list.begin(); it != task_button_list.end(); it++)
     {
         connect(*it, SIGNAL(button_state_and_task_number(int)), this, SLOT(change_task_number_and_selected_button(int)));
         connect(*it, SIGNAL(button_task_number(int)), this, SLOT(change_task_number(int)));
     }
-
-    // variable cleaning
-    delete task_button_list;
-    task_button_list = nullptr;
 }
 
 //
 void MainWindow::change_task_number_and_selected_button(int const& task_number)
 {
-    QList<CheckableTaskButton *> *task_button_list = new QList<CheckableTaskButton *>();
+    QList<CheckableTaskButton *> task_button_list = QList<CheckableTaskButton *>();
 
     for (auto it = m_sa_list->begin(); it != m_sa_list->end(); it++)
     {
-        task_button_list->append((*it)->findChildren<CheckableTaskButton *>());
+        task_button_list.append((*it)->findChildren<CheckableTaskButton *>());
     }
 
     //task_button_list->append(ui->sa_non_dated_tasks->findChildren<CheckableTaskButton *>());
 
-    for (auto it = task_button_list->begin(); it != task_button_list->end(); it++)
+    for (auto it = task_button_list.begin(); it != task_button_list.end(); it++)
     {
         if ( (*it)->get_task_number() != task_number and (*it)->isChecked() )
         {

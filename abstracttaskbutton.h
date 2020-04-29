@@ -4,13 +4,15 @@
 #include <QtWidgets>
 
 #include "nondatedtask.h"
+#include "reminder.h"
 
 class AbstractTaskButton : public QPushButton
 {
     public:
         // Constructor and destructor
             AbstractTaskButton(QString const& button_text,
-                               NonDatedTask const& task);
+                               NonDatedTask *task = nullptr,
+                               Reminder *reminder = nullptr);
             virtual ~AbstractTaskButton();
 
         // Getters
@@ -26,6 +28,7 @@ class AbstractTaskButton : public QPushButton
         // Attributes
             QString *m_button_text;
             NonDatedTask *m_task;
+            Reminder *m_reminder;
 };
 
 #endif // ABSTRACTTASKBUTTON_H

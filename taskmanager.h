@@ -81,7 +81,7 @@ class TaskManager
             const std::map<int, NormalTask*>& get_normal_tasks_list() const;
             const std::map<int, PeriodicTask*>& get_periodic_tasks_list() const;
             const std::vector<Reminder*>& get_reminder_tasks_list() const;
-            const std::vector<NormalTask*>& get_important_tasks_list() const;
+            const std::vector<NonDatedTask*>& get_important_tasks_list() const;
 
             int get_number_of_tasks() const;
 
@@ -91,7 +91,7 @@ class TaskManager
             std::map<int, NormalTask*> *m_normal_tasks_list;
             std::map<int, PeriodicTask*> *m_periodic_tasks_list;
             std::vector<Reminder*> *m_reminder_tasks_list;
-            std::vector<NormalTask*> *m_important_tasks_list;
+            std::vector<NonDatedTask*> *m_important_tasks_list;
 
             int *m_number_of_tasks;
 

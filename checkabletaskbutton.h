@@ -12,7 +12,8 @@ class CheckableTaskButton : public AbstractTaskButton
     public:
         // Constructor and destructor
             CheckableTaskButton(QString const& button_text,
-                                NonDatedTask const& task);
+                                NonDatedTask *task = nullptr,
+                                Reminder *reminder = nullptr);
             virtual ~CheckableTaskButton();
 
         // Methods
@@ -26,9 +27,6 @@ class CheckableTaskButton : public AbstractTaskButton
 
         void button_state_and_task_number(int const& number);
         void button_task_number(int const& number);
-
-    protected:
-        // Attributes
 };
 
 #endif // CHECKABLETASKBUTTON_H

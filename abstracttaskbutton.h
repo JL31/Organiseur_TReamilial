@@ -3,20 +3,15 @@
 
 #include <QtWidgets>
 
-#include "nondatedtask.h"
-#include "reminder.h"
+#include "basetask.h"
 
 class AbstractTaskButton : public QPushButton
 {
     public:
         // Constructor and destructor
             AbstractTaskButton(QString const& button_text,
-                               NonDatedTask *task = nullptr,
-                               Reminder *reminder = nullptr);
+                               BaseTask *m_task);
             virtual ~AbstractTaskButton();
-
-        // Getters
-            int get_task_number();
 
         // Methods
             void mouseDoubleClickEvent(QMouseEvent *event);
@@ -24,11 +19,13 @@ class AbstractTaskButton : public QPushButton
             virtual void set_button_color() = 0;
             virtual void set_checkable_state() = 0;
 
+        // Getters
+            int get_task_number() const;
+
     protected:
         // Attributes
-            QString *m_button_text;
-            NonDatedTask *m_task;
-            Reminder *m_reminder;
+            QString m_button_text;
+            BaseTask *m_task;
 };
 
 #endif // ABSTRACTTASKBUTTON_H

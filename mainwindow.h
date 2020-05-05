@@ -39,6 +39,7 @@ class MainWindow : public QMainWindow
 
         // tmp - début
         void tasks_update();
+        void prior_cleaning_and_initialization();
         void non_dated_tasks_update();
         void calendar_tasks_update();
         // tmp - fin
@@ -54,23 +55,21 @@ class MainWindow : public QMainWindow
     public slots:
         void task_addition();
         void task_modification();
-        //void processed_task();
+        void processed_task();
         //void showEvent(QShowEvent *ev);
-        //void go_to_previous_week();
-        //void go_to_next_week();
+        void go_to_previous_week();
+        void go_to_next_week();
         void change_task_number_and_selected_button(int const& task_number);
         void change_task_number(int const& task_number);
         void connect_task_button_signals();
 
     private:
         Ui::MainWindow *ui;
-        TaskManager *tm;
+        TaskManager tm;
         IHMGestionDesTaches *ihm_gdt;
         int m_choix_gdt;
         std::map<std::string, std::string> *m_data_from_DB;
-        QDate *m_current_date;
-        std::vector<int> *m_current_week_tasks;
-        std::vector<int> *m_current_week_periodic_tasks;
+        QDate m_current_date;
         std::map<int, QString> i_to_s_month;
         QVBoxLayout *m_layout_taches_lundi;
         QVBoxLayout *m_layout_taches_mardi;
@@ -80,7 +79,7 @@ class MainWindow : public QMainWindow
         QVBoxLayout *m_layout_taches_samedi;
         QVBoxLayout *m_layout_taches_dimanche;
         QVBoxLayout *m_non_dated_tasks_layout;
-        std::vector<QScrollArea*> *m_sa_list;
-        int *m_selected_task_number;
+        std::vector<QScrollArea *> m_sa_list;
+        int m_selected_task_number;
 };
 #endif // MAINWINDOW_H

@@ -12,8 +12,8 @@ class PeriodicTask : public NormalTask
         // Constructor and destructor
             PeriodicTask(int const& number,
                          QString const& name,
-                         bool const& is_important,
                          QString const& comments,
+                         bool const& is_important,
                          bool const& is_processed,
                          bool const& is_dated,
                          QDate const& date,
@@ -32,9 +32,9 @@ class PeriodicTask : public NormalTask
 
     protected:
         // Attributes
-            bool *m_is_periodic;
-            int *m_periodicity;
-            std::vector<PeriodicSubTask*> *m_periodic_sub_tasks;
+            bool m_is_periodic;
+            int m_periodicity;
+            std::vector<PeriodicSubTask*> m_periodic_sub_tasks;
 };
 
 #endif // PERIODICTASK_H

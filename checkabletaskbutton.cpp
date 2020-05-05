@@ -1,12 +1,14 @@
+#include <typeinfo>
+
 #include "checkabletaskbutton.h"
+#include "nondatedtask.h"
 
 // Constructor and Destructor
 // --------------------------
 
 // Constructor
 CheckableTaskButton::CheckableTaskButton(QString const& button_text,
-                                         NonDatedTask *task,
-                                         Reminder *reminder) : AbstractTaskButton(button_text, task, reminder)
+                                         BaseTask *task) : AbstractTaskButton(button_text, task)
 {
     adapt_button_text();
     set_button_color();

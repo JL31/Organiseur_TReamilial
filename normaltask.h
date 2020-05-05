@@ -10,8 +10,8 @@ class NormalTask : public NonDatedTask
         // Constructor and destructor
             NormalTask(int const& number,
                        QString const& name,
-                       bool const& is_important,
                        QString const& comments,
+                       bool const& is_important,
                        bool const& is_processed,
                        bool const& is_dated,
                        QDate const& date,
@@ -27,10 +27,10 @@ class NormalTask : public NonDatedTask
 
     protected:
         // Attributes
-            bool *m_is_dated;
-            QDate *m_date;
-            bool *m_reminder;
-            int *m_weeks_before_task;
+            bool m_is_dated;
+            QDate m_date;
+            bool m_reminder;
+            int m_weeks_before_task;
 };
 
 #endif // NORMALTASK_H

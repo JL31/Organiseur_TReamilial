@@ -5,8 +5,7 @@
 
 // Constructor
 ImportantTaskButton::ImportantTaskButton(QString const& button_text,
-                                         NonDatedTask *task,
-                                         Reminder *reminder) : AbstractTaskButton(button_text, task, reminder)
+                                         BaseTask *task) : AbstractTaskButton(button_text, task)
 {
     adapt_button_text();
     set_button_color();

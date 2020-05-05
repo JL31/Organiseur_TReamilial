@@ -65,10 +65,10 @@ class DatabaseHandler
         // Attributes
             sqlite3 *m_database;
             std::string m_database_name;
-            char *m_zErrMsg;
+            //char** m_zErrMsg;
+            char* m_zErrMsg;
             int m_rc;
-            std::string *m_sql_request;
-            int *m_counter;
+            std::string m_sql_request;
 };
 
 #endif // DATABASEHANDLER_H

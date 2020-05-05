@@ -21,10 +21,10 @@ class PeriodicSubTask
 
     protected:
         // Attributes
-            int *m_number;
-            QDate *m_initial_date;
-            QDate *m_delayed_date;
-            bool *m_is_processed;
+            int m_number;
+            QDate m_initial_date;
+            QDate m_delayed_date;
+            bool m_is_processed;
 };
 
 #endif // PERIODICSUBTASK_H

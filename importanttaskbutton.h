@@ -8,8 +8,7 @@ class ImportantTaskButton : public AbstractTaskButton
     public:
         // Constructor and destructor
             ImportantTaskButton(QString const& button_text,
-                                NonDatedTask *task = nullptr,
-                                Reminder *reminder = nullptr);
+                                BaseTask *task);
             virtual ~ImportantTaskButton();
 
         // Methods

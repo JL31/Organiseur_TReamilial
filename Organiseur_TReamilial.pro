@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     abstracttaskbutton.cpp \
+    basetask.cpp \
     checkabletaskbutton.cpp \
     databasehandler.cpp \
     ihm_gestion_des_taches.cpp \
@@ -29,11 +30,11 @@ SOURCES += \
     periodictask.cpp \
     reminder.cpp \
     remindertaskbutton.cpp \
-    taskbutton.cpp \
     taskmanager.cpp
 
 HEADERS += \
     abstracttaskbutton.h \
+    basetask.h \
     checkabletaskbutton.h \
     databasehandler.h \
     ihm_gestion_des_taches.h \
@@ -45,7 +46,6 @@ HEADERS += \
     periodictask.h \
     reminder.h \
     remindertaskbutton.h \
-    taskbutton.h \
     taskmanager.h
 
 FORMS += \

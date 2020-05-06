@@ -74,13 +74,13 @@
              <property name="minimumSize">
               <size>
                <width>90</width>
-               <height>100</height>
+               <height>125</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>90</width>
-               <height>100</height>
+               <height>150</height>
               </size>
              </property>
              <property name="text">
@@ -90,11 +90,47 @@ précédente</string>
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="gb_important_tasks">
-             <property name="title">
-              <string/>
+            <widget class="QScrollArea" name="sa_important_tasks">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
-             <layout class="QHBoxLayout" name="gb_important_tasks_layout"/>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>150</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>150</height>
+              </size>
+             </property>
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAsNeeded</enum>
+             </property>
+             <property name="horizontalScrollBarPolicy">
+              <enum>Qt::ScrollBarAsNeeded</enum>
+             </property>
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_8">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>421</width>
+                <height>148</height>
+               </rect>
+              </property>
+             </widget>
             </widget>
            </item>
            <item>
@@ -108,13 +144,13 @@ précédente</string>
              <property name="minimumSize">
               <size>
                <width>90</width>
-               <height>100</height>
+               <height>125</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>90</width>
-               <height>100</height>
+               <height>150</height>
               </size>
              </property>
              <property name="text">
@@ -163,16 +199,22 @@ suivante</string>
            </item>
            <item>
             <widget class="QScrollArea" name="sa_lundi">
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAsNeeded</enum>
+             </property>
              <property name="widgetResizable">
               <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
              </property>
              <widget class="QWidget" name="layout_taches_lundi">
               <property name="geometry">
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>68</width>
-                <height>355</height>
+                <width>79</width>
+                <height>305</height>
                </rect>
               </property>
              </widget>
@@ -194,16 +236,22 @@ suivante</string>
            </item>
            <item>
             <widget class="QScrollArea" name="sa_mardi">
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAsNeeded</enum>
+             </property>
              <property name="widgetResizable">
               <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
              </property>
              <widget class="QWidget" name="scrollAreaWidgetContents_2">
               <property name="geometry">
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>68</width>
-                <height>355</height>
+                <width>79</width>
+                <height>305</height>
                </rect>
               </property>
              </widget>
@@ -225,16 +273,22 @@ suivante</string>
            </item>
            <item>
             <widget class="QScrollArea" name="sa_mercredi">
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAsNeeded</enum>
+             </property>
              <property name="widgetResizable">
               <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
              </property>
              <widget class="QWidget" name="scrollAreaWidgetContents_3">
               <property name="geometry">
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>68</width>
-                <height>355</height>
+                <width>79</width>
+                <height>305</height>
                </rect>
               </property>
              </widget>
@@ -256,16 +310,22 @@ suivante</string>
            </item>
            <item>
             <widget class="QScrollArea" name="sa_jeudi">
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAsNeeded</enum>
+             </property>
              <property name="widgetResizable">
               <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
              </property>
              <widget class="QWidget" name="scrollAreaWidgetContents_4">
               <property name="geometry">
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>68</width>
-                <height>355</height>
+                <width>79</width>
+                <height>305</height>
                </rect>
               </property>
              </widget>
@@ -287,16 +347,22 @@ suivante</string>
            </item>
            <item>
             <widget class="QScrollArea" name="sa_vendredi">
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAsNeeded</enum>
+             </property>
              <property name="widgetResizable">
               <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
              </property>
              <widget class="QWidget" name="scrollAreaWidgetContents_5">
               <property name="geometry">
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>68</width>
-                <height>355</height>
+                <width>79</width>
+                <height>305</height>
                </rect>
               </property>
              </widget>
@@ -318,16 +384,22 @@ suivante</string>
            </item>
            <item>
             <widget class="QScrollArea" name="sa_samedi">
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAsNeeded</enum>
+             </property>
              <property name="widgetResizable">
               <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
              </property>
              <widget class="QWidget" name="scrollAreaWidgetContents_6">
               <property name="geometry">
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>68</width>
-                <height>355</height>
+                <width>79</width>
+                <height>305</height>
                </rect>
               </property>
              </widget>
@@ -349,16 +421,22 @@ suivante</string>
            </item>
            <item>
             <widget class="QScrollArea" name="sa_dimanche">
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAsNeeded</enum>
+             </property>
              <property name="widgetResizable">
               <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
              </property>
              <widget class="QWidget" name="scrollAreaWidgetContents_7">
               <property name="geometry">
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>68</width>
-                <height>355</height>
+                <width>79</width>
+                <height>305</height>
                </rect>
               </property>
              </widget>
@@ -374,26 +452,26 @@ suivante</string>
     <item>
      <widget class="QGroupBox" name="gb_non_dated_tasks">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
       <property name="minimumSize">
        <size>
-        <width>50</width>
+        <width>165</width>
         <height>0</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>250</width>
+        <width>170</width>
         <height>16777215</height>
        </size>
       </property>
       <property name="baseSize">
        <size>
-        <width>50</width>
+        <width>150</width>
         <height>0</height>
        </size>
       </property>
@@ -407,7 +485,7 @@ suivante</string>
        <item>
         <widget class="QLabel" name="l_non_dated_tasks_title">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -420,8 +498,8 @@ suivante</string>
          </property>
          <property name="maximumSize">
           <size>
-           <width>250</width>
-           <height>15</height>
+           <width>145</width>
+           <height>55</height>
           </size>
          </property>
          <property name="baseSize">
@@ -437,8 +515,11 @@ suivante</string>
            <bold>true</bold>
           </font>
          </property>
+         <property name="lineWidth">
+          <number>1</number>
+         </property>
          <property name="text">
-          <string>Tâches non datées</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tâches non&lt;/p&gt;&lt;p&gt;datées&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -447,34 +528,37 @@ suivante</string>
        </item>
        <item>
         <widget class="QScrollArea" name="sa_non_dated_tasks">
-         <property name="minimumSize">
-          <size>
-           <width>50</width>
-           <height>0</height>
-          </size>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
          <property name="maximumSize">
           <size>
-           <width>250</width>
+           <width>150</width>
            <height>16777215</height>
           </size>
          </property>
-         <property name="baseSize">
-          <size>
-           <width>50</width>
-           <height>0</height>
-          </size>
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustIgnored</enum>
          </property>
          <property name="widgetResizable">
           <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
          <widget class="QWidget" name="scrollAreaWidgetContents">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>216</width>
-            <height>554</height>
+            <width>139</width>
+            <height>514</height>
            </rect>
           </property>
          </widget>

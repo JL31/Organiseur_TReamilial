@@ -9,8 +9,9 @@ AbstractTaskButton::AbstractTaskButton(QString const& button_text,
                                                          m_task(task)
 {
     // Provisoire - début
-    this->setMinimumSize(85, 85);
-    this->setMaximumSize(85, 85);
+    int taille = 110;
+    this->setMinimumSize(taille, taille);
+    this->setMaximumSize(taille, taille);
     // Provisoire - fin
 }
 

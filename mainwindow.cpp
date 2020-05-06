@@ -9,28 +9,43 @@
 
 using namespace std;
 
-// Constructeur
+// Constructor and destructor
+// --------------------------
+
+// Constructor
 MainWindow::MainWindow(QWidget *parent) :
                        QMainWindow(parent),
                        ui(new Ui::MainWindow),
+                       m_data_from_DB(new map<string, string>()),
                        tm(TaskManager()),
                        m_choix_gdt(0),
-                       m_data_from_DB(new map<string, string>()),
+                       m_selected_task_number(0),
                        m_current_date(QDate(QDate::currentDate())),
-                       m_layout_taches_lundi(new QVBoxLayout()),
-                       m_layout_taches_mardi(new QVBoxLayout()),
-                       m_layout_taches_mercredi(new QVBoxLayout()),
-                       m_layout_taches_jeudi(new QVBoxLayout()),
-                       m_layout_taches_vendredi(new QVBoxLayout()),
-                       m_layout_taches_samedi(new QVBoxLayout()),
-                       m_layout_taches_dimanche(new QVBoxLayout()),
+                       m_monday_tasks_layout(new QVBoxLayout()),
+                       m_tuesday_tasks_layout(new QVBoxLayout()),
+                       m_wednesday_tasks_layout(new QVBoxLayout()),
+                       m_thursday_tasks_layout(new QVBoxLayout()),
+                       m_friday_tasks_layout(new QVBoxLayout()),
+                       m_saturday_tasks_layout(new QVBoxLayout()),
+                       m_sunday_tasks_layout(new QVBoxLayout()),
                        m_non_dated_tasks_layout(new QVBoxLayout()),
-                       m_sa_list(vector<QScrollArea *>()),              // fuite mémoire ou pas lors de la fermeture du pgm ?
-                       m_selected_task_number(0)
+                       m_important_tasks_layout(new QHBoxLayout()),
+                       m_monday_tasks_sa_base_widget(new QWidget()),
+                       m_tuesday_tasks_sa_base_widget(new QWidget()),
+                       m_wednesday_tasks_sa_base_widget(new QWidget()),
+                       m_thursday_tasks_sa_base_widget(new QWidget()),
+                       m_friday_tasks_sa_base_widget(new QWidget()),
+                       m_saturday_tasks_sa_base_widget(new QWidget()),
+                       m_sunday_tasks_sa_base_widget(new QWidget()),
+                       m_non_dated_tasks_sa_base_widget(new QWidget()),
+                       m_important_tasks_sa_base_widget(new QWidget()),
+                       m_sa_list(vector<QWidget *>())              // fuite mémoire ou pas lors de la fermeture du pgm ?
 {
+    // HMI global initializations
     ui->setupUi(this);
     ui->action_Quitter->setShortcuts({ tr("Alt+Q"), tr("Esc") });
 
+    // months mapping initialization
     i_to_s_month[1] = "janvier";
     i_to_s_month[2] = "février";
     i_to_s_month[3] = "mars";
@@ -44,23 +59,15 @@ MainWindow::MainWindow(QWidget *parent) :
     i_to_s_month[11] = "novembre";
     i_to_s_month[12] = "décembre";
 
-    m_sa_list.push_back(ui->sa_lundi);
-    m_sa_list.push_back(ui->sa_mardi);
-    m_sa_list.push_back(ui->sa_mercredi);
-    m_sa_list.push_back(ui->sa_jeudi);
-    m_sa_list.push_back(ui->sa_vendredi);
-    m_sa_list.push_back(ui->sa_samedi);
-    m_sa_list.push_back(ui->sa_dimanche);
-
-    m_sa_list.push_back(ui->sa_non_dated_tasks);
-
-    days_layout_definition();
+    // others initializations
+    scroll_areas_initialization();
     actions_connection();
     calendar_week_update();
     tasks_update();
+    this->showMaximized();
 }
 
-// Destructeur
+// Destructor
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -71,35 +78,60 @@ MainWindow::~MainWindow()
 }
 
 
-// Method that defines the layout for the several days group boxes
-void MainWindow::days_layout_definition()
-{
-    ui->sa_lundi->setLayout(m_layout_taches_lundi);
-    ui->sa_mardi->setLayout(m_layout_taches_mardi);
-    ui->sa_mercredi->setLayout(m_layout_taches_mercredi);
-    ui->sa_jeudi->setLayout(m_layout_taches_jeudi);
-    ui->sa_vendredi->setLayout(m_layout_taches_vendredi);
-    ui->sa_samedi->setLayout(m_layout_taches_samedi);
-    ui->sa_dimanche->setLayout(m_layout_taches_dimanche);
+// Methods
+// -------
 
-    ui->sa_non_dated_tasks->setLayout(m_non_dated_tasks_layout);
+// Method that defines the layout for the several days group boxes
+void MainWindow::scroll_areas_initialization()
+{
+    // Setting base widget for all scroll areas
+    ui->sa_lundi->setWidget(m_monday_tasks_sa_base_widget);
+    ui->sa_mardi->setWidget(m_tuesday_tasks_sa_base_widget);
+    ui->sa_mercredi->setWidget(m_wednesday_tasks_sa_base_widget);
+    ui->sa_jeudi->setWidget(m_thursday_tasks_sa_base_widget);
+    ui->sa_vendredi->setWidget(m_friday_tasks_sa_base_widget);
+    ui->sa_samedi->setWidget(m_saturday_tasks_sa_base_widget);
+    ui->sa_dimanche->setWidget(m_sunday_tasks_sa_base_widget);
+    ui->sa_non_dated_tasks->setWidget(m_non_dated_tasks_sa_base_widget);
+    ui->sa_important_tasks->setWidget(m_important_tasks_sa_base_widget);
+
+    // Setting layouts to the scroll areas base widgets
+    m_monday_tasks_sa_base_widget->setLayout(m_monday_tasks_layout);
+    m_tuesday_tasks_sa_base_widget->setLayout(m_tuesday_tasks_layout);
+    m_wednesday_tasks_sa_base_widget->setLayout(m_wednesday_tasks_layout);
+    m_thursday_tasks_sa_base_widget->setLayout(m_thursday_tasks_layout);
+    m_friday_tasks_sa_base_widget->setLayout(m_friday_tasks_layout);
+    m_saturday_tasks_sa_base_widget->setLayout(m_saturday_tasks_layout);
+    m_sunday_tasks_sa_base_widget->setLayout(m_sunday_tasks_layout);
+    m_non_dated_tasks_sa_base_widget->setLayout(m_non_dated_tasks_layout);
+    m_important_tasks_sa_base_widget->setLayout(m_important_tasks_layout);
+
+    // Filling-in of the "sa_list" class member
+    m_sa_list.push_back(m_monday_tasks_sa_base_widget);
+    m_sa_list.push_back(m_tuesday_tasks_sa_base_widget);
+    m_sa_list.push_back(m_wednesday_tasks_sa_base_widget);
+    m_sa_list.push_back(m_thursday_tasks_sa_base_widget);
+    m_sa_list.push_back(m_friday_tasks_sa_base_widget);
+    m_sa_list.push_back(m_saturday_tasks_sa_base_widget);
+    m_sa_list.push_back(m_sunday_tasks_sa_base_widget);
+    m_sa_list.push_back(m_non_dated_tasks_sa_base_widget);
 }
 
 
 // Method that adds a spacer at the end of the several days group boxes
 void MainWindow::days_spacer_addition()
 {
-    m_layout_taches_lundi->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    m_layout_taches_mardi->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    m_layout_taches_mercredi->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    m_layout_taches_jeudi->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    m_layout_taches_vendredi->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    m_layout_taches_samedi->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    m_layout_taches_dimanche->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    m_monday_tasks_layout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    m_tuesday_tasks_layout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    m_wednesday_tasks_layout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    m_thursday_tasks_layout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    m_friday_tasks_layout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    m_saturday_tasks_layout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    m_sunday_tasks_layout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
 }
 
 
-// Connexion des actions
+// Actions connection
 void MainWindow::actions_connection() const
 {
     // Connexion des actions du menu "Menu"
@@ -115,7 +147,8 @@ void MainWindow::actions_connection() const
     connect(ui->b_semaine_suivante, SIGNAL(clicked()), this, SLOT(go_to_next_week()));
 }
 
-// Méthode qui permet de mettre à jour le calendrier de la semaine courante
+
+// Method to update current week calendar days, days number...
 void MainWindow::calendar_week_update()
 {
     // Variables initialization
@@ -224,7 +257,7 @@ void MainWindow::prior_cleaning_and_initialization()
     QList<ImportantTaskButton *> important_task_button_list = QList<ImportantTaskButton *>();
 
     // retrieval of the ImportantTaskButton instances of the important tasks part of the HMI
-    important_task_button_list.append(ui->gb_important_tasks->findChildren<ImportantTaskButton *>());
+    important_task_button_list.append(ui->sa_important_tasks->findChildren<ImportantTaskButton *>());
 
     // deletion of the ImportantTaskButton instances
     for (auto it = important_task_button_list.begin(); it != important_task_button_list.end(); it++)
@@ -234,11 +267,11 @@ void MainWindow::prior_cleaning_and_initialization()
     }
 
     // ... pris sur le net : https://stackoverflow.com/questions/23461614/delete-all-qspaceritem-from-a-layout
-    for (int i = 0; i < ui->gb_important_tasks_layout->count(); ++i)
+    for (int i = 0; i < m_important_tasks_layout->count(); ++i)
     {
-        if ( ui->gb_important_tasks_layout->itemAt(i)->spacerItem() )
+        if ( m_important_tasks_layout->itemAt(i)->spacerItem() )
         {
-            ui->gb_important_tasks_layout->layout()->removeItem(ui->gb_important_tasks_layout->itemAt(i));
+            m_important_tasks_layout->removeItem(m_important_tasks_layout->itemAt(i));
 
             i--;
         }
@@ -269,11 +302,11 @@ void MainWindow::important_tasks_update()
     // tasks creation (i.e. the buttons)
     for (auto it = tm.get_important_tasks_list().begin(); it != tm.get_important_tasks_list().end(); it++)
     {
-        ui->gb_important_tasks_layout->addWidget(new ImportantTaskButton((*it).get_name(), &(*it)));
+        m_important_tasks_layout->addWidget(new ImportantTaskButton((*it).get_name(), &(*it)));
     }
 
     // spacer addition
-    ui->gb_important_tasks_layout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum));
+    m_important_tasks_layout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum));
 }
 
 
@@ -291,37 +324,37 @@ void MainWindow::calendar_tasks_update()
         {
             case 1:
 
-                m_layout_taches_lundi->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
+                m_monday_tasks_layout->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
                 break;
 
             case 2:
 
-                m_layout_taches_mardi->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
+                m_tuesday_tasks_layout->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
                 break;
 
             case 3:
 
-                m_layout_taches_mercredi->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
+                m_wednesday_tasks_layout->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
                 break;
 
             case 4:
 
-                m_layout_taches_jeudi->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
+                m_thursday_tasks_layout->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
                 break;
 
             case 5:
 
-                m_layout_taches_vendredi->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
+                m_friday_tasks_layout->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
                 break;
 
             case 6:
 
-                m_layout_taches_samedi->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
+                m_saturday_tasks_layout->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
                 break;
 
             case 7:
 
-                m_layout_taches_dimanche->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
+                m_sunday_tasks_layout->addWidget(new CheckableTaskButton(it->second.get_name(), &(it->second)));
                 break;
         }
     }
@@ -348,44 +381,44 @@ void MainWindow::reminder_tasks_update()
         {
             case 1:
 
-                m_layout_taches_lundi->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
+                m_monday_tasks_layout->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
                 break;
 
             case 2:
 
-                m_layout_taches_mardi->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
+                m_tuesday_tasks_layout->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
                 break;
 
             case 3:
 
-                m_layout_taches_mercredi->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
+                m_wednesday_tasks_layout->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
                 break;
 
             case 4:
 
-                m_layout_taches_jeudi->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
+                m_thursday_tasks_layout->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
                 break;
 
             case 5:
 
-                m_layout_taches_vendredi->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
+                m_friday_tasks_layout->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
                 break;
 
             case 6:
 
-                m_layout_taches_samedi->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
+                m_saturday_tasks_layout->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
                 break;
 
             case 7:
 
-                m_layout_taches_dimanche->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
+                m_sunday_tasks_layout->addWidget(new ReminderTaskButton((*it).get_name(), &(*it)));
                 break;
         }
     }
 }
 
 
-// ...
+// Method to connect the CheckableTaskButton instance signals to the corresponding slots
 void MainWindow::connect_task_button_signals()
 {
     // variable initialization
@@ -406,6 +439,9 @@ void MainWindow::connect_task_button_signals()
 }
 
 
+// SLOTS
+// -----
+
 // Method to change the current task number and to uncheck the previously checked button
 void MainWindow::change_task_number_and_selected_button(int const& task_number)
 {
@@ -415,8 +451,6 @@ void MainWindow::change_task_number_and_selected_button(int const& task_number)
     {
         task_button_list.append((*it)->findChildren<CheckableTaskButton *>());
     }
-
-    //task_button_list->append(ui->sa_non_dated_tasks->findChildren<CheckableTaskButton *>());
 
     for (auto it = task_button_list.begin(); it != task_button_list.end(); it++)
     {
@@ -430,7 +464,7 @@ void MainWindow::change_task_number_and_selected_button(int const& task_number)
 }
 
 
-// Method to change the current task numberr
+// Method to change the current task number
 void MainWindow::change_task_number(int const& task_number)
 {
     if ( m_selected_task_number != task_number )
@@ -444,7 +478,7 @@ void MainWindow::change_task_number(int const& task_number)
 }
 
 
-// Code du SLOT pour passer à la semaine précédente
+// SLOT code to go to previous week
 void MainWindow::go_to_previous_week()
 {
     // current date modification
@@ -459,7 +493,8 @@ void MainWindow::go_to_previous_week()
     tasks_update();
 }
 
-// Code du SLOT pour passer à la semaine suivante
+
+// SLOT code to go to next week
 void MainWindow::go_to_next_week()
 {
     // current date modification
@@ -475,7 +510,7 @@ void MainWindow::go_to_next_week()
 }
 
 
-// Code du SLOT d'ajout de tâche
+// SLOT code to add a task
 void MainWindow::task_addition()
 {
     ihm_gdt = new IHMGestionDesTaches(this);
@@ -540,7 +575,7 @@ void MainWindow::task_addition()
 }
 
 
-// Code du SLOT de modification de tâche
+// SLOT code to modify an existing task
 void MainWindow::task_modification()
 {
     // prior cleaning
@@ -611,7 +646,7 @@ void MainWindow::task_modification()
 }
 
 
-// Code du SLOT qui permet de marquer une tâche comme terminée
+// SLOT code to set a task as processed
 void MainWindow::processed_task()
 {
     // variable initialization
@@ -628,78 +663,3 @@ void MainWindow::processed_task()
     }
 }
 
-
-/*
-void MainWindow::current_week_periodic_task_update()
-{
-    // nettoyage préalable
-    current_week_periodic_tasks_cleaning();
-
-    // Récupération des numéros des tâches périodiques de la semaine courante
-    tm.load_current_week_periodic_tasks_numbers(m_current_date.year(), m_current_date.weekNumber(), m_current_week_periodic_tasks);
-
-    // Chargement des tâches de la semaine courante
-    for (vector<int>::iterator it = m_current_week_periodic_tasks->begin(); it != m_current_week_periodic_tasks->end(); it++)
-    {
-        tm.load_current_week_periodic_tasks(*it);
-    }
-
-    // Création des tâches (i.e. les boutons)
-    map<int, PeriodicTask*> periodic_task_list = tm.get_periodic_task_list();
-
-    for (map<int, PeriodicTask*>::iterator ptl_iterator = periodic_task_list.begin(); ptl_iterator != periodic_task_list.end(); ptl_iterator++)
-    {
-        int *current_task_day_of_week = new int(ptl_iterator->second->get_task_date().dayOfWeek());
-
-        switch (*current_task_day_of_week)
-        {
-            case 1:
-
-                m_layout_taches_lundi->addWidget(new TaskButton(ptl_iterator->second->get_task_name(), ptl_iterator->first, ptl_iterator->second->get_task_importance(), ptl_iterator->second->get_comments(), ptl_iterator->second->get_reminder_state(), true, this));
-                break;
-
-            case 2:
-
-                m_layout_taches_mardi->addWidget(new TaskButton(ptl_iterator->second->get_task_name(), ptl_iterator->first, ptl_iterator->second->get_task_importance(), ptl_iterator->second->get_comments(), ptl_iterator->second->get_reminder_state(), true, this));
-                break;
-
-            case 3:
-
-                m_layout_taches_mercredi->addWidget(new TaskButton(ptl_iterator->second->get_task_name(), ptl_iterator->first, ptl_iterator->second->get_task_importance(), ptl_iterator->second->get_comments(), ptl_iterator->second->get_reminder_state(), true, this));
-                break;
-
-            case 4:
-
-                m_layout_taches_jeudi->addWidget(new TaskButton(ptl_iterator->second->get_task_name(), ptl_iterator->first, ptl_iterator->second->get_task_importance(), ptl_iterator->second->get_comments(), ptl_iterator->second->get_reminder_state(), true, this));
-                break;
-
-            case 5:
-
-                m_layout_taches_vendredi->addWidget(new TaskButton(ptl_iterator->second->get_task_name(), ptl_iterator->first, ptl_iterator->second->get_task_importance(), ptl_iterator->second->get_comments(), ptl_iterator->second->get_reminder_state(), true, this));
-                break;
-
-            case 6:
-
-                m_layout_taches_samedi->addWidget(new TaskButton(ptl_iterator->second->get_task_name(), ptl_iterator->first, ptl_iterator->second->get_task_importance(), ptl_iterator->second->get_comments(), ptl_iterator->second->get_reminder_state(), true, this));
-                break;
-
-            case 7:
-
-                m_layout_taches_dimanche->addWidget(new TaskButton(ptl_iterator->second->get_task_name(), ptl_iterator->first, ptl_iterator->second->get_task_importance(), ptl_iterator->second->get_comments(), ptl_iterator->second->get_reminder_state(), true, this));
-                break;
-        }
-
-        delete current_task_day_of_week;
-        current_task_day_of_week = nullptr;
-    }
-
-    // Connect the TaskButton signals to Mainwindow slots
-    connect_task_button_signals();
-
-    // ...
-    reminder_tasks_update();
-
-    // ajout d'un spacer dans chacune des group box des différents jours
-    days_spacer_addition();
-}
-*/

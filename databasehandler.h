@@ -13,8 +13,10 @@ class DatabaseHandler
 {
     public:
         // Constructors and destructor
-            DatabaseHandler();
+            DatabaseHandler(std::string const& database_complete_path);
             virtual ~DatabaseHandler();
+
+        void DB_initialization();
 
         void DB_opening();
 

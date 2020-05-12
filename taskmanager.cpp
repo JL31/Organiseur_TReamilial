@@ -6,14 +6,21 @@ using namespace std;
 // --------------------------
 
 // Constructor
-TaskManager::TaskManager() :
-                             m_non_dated_tasks_list(map<int, NonDatedTask>()),
-                             m_normal_tasks_list(map<int, NormalTask>()),
-                             m_periodic_tasks_list(map<int, PeriodicTask>()),
-                             m_reminder_tasks_list(vector<Reminder>()),
-                             m_important_tasks_list(vector<BaseTask>()),
-                             m_db_handler(DatabaseHandler())
-{}
+TaskManager::TaskManager(QString const& database_complete_path,
+                         bool const& database_folder_automatically_initiated) : m_non_dated_tasks_list(map<int, NonDatedTask>()),
+                                                                                m_normal_tasks_list(map<int, NormalTask>()),
+                                                                                m_periodic_tasks_list(map<int, PeriodicTask>()),
+                                                                                m_reminder_tasks_list(vector<Reminder>()),
+                                                                                m_important_tasks_list(vector<BaseTask>()),
+                                                                                m_db_handler(DatabaseHandler(database_complete_path.toStdString())),
+                                                                                m_database_folder_automatically_initiated(database_folder_automatically_initiated)
+{
+    // if the database has been automatically initialiazed by the user some tables must be created
+    if ( m_database_folder_automatically_initiated )
+    {
+        m_db_handler.DB_initialization();
+    }
+}
 
 // Destructor
 TaskManager::~TaskManager()

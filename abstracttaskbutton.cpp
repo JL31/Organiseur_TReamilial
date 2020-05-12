@@ -9,9 +9,18 @@ AbstractTaskButton::AbstractTaskButton(QString const& button_text,
                                                          m_task(task)
 {
     // Provisoire - début
-    int taille = 110;
+    int taille = 95;
     this->setMinimumSize(taille, taille);
     this->setMaximumSize(taille, taille);
+    this->setContentsMargins(5, 5, 5, 5);
+
+    //
+    //
+    // penser à limiter le nombre de caractères pour la description de la tâche,
+    // i.e. NAME, à environ 14
+    //
+    //
+
     // Provisoire - fin
 }
 

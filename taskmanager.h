@@ -18,7 +18,8 @@ class TaskManager
 {
     public:
         // Constructor and destructor
-            TaskManager();
+            TaskManager(QString const& database_complete_path,
+                        bool const& database_folder_automatically_initiated);
             virtual ~TaskManager();
 
         // Methods
@@ -73,6 +74,8 @@ class TaskManager
 
             DatabaseHandler m_db_handler;
             std::vector<std::map<std::string, std::string>> *m_data_extraction_from_DB;
+
+            bool m_database_folder_automatically_initiated;
 };
 
 #endif // TASKMANAGER_H

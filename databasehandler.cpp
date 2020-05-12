@@ -8,8 +8,7 @@ using namespace std;
 // --------------------------
 
 // Constructor
-DatabaseHandler::DatabaseHandler() :
-                                 m_database_name("/home/tream/Bureau/Developpements/Langage_cpp/Organiseur_TReamilial/database/ot_databases.db")
+DatabaseHandler::DatabaseHandler(string const& database_complete_path) : m_database_name(database_complete_path + "/ot_databases.db")
 {}
 
 
@@ -17,6 +16,49 @@ DatabaseHandler::DatabaseHandler() :
 DatabaseHandler::~DatabaseHandler()
 {}
 
+
+//
+static int dummy_callback(void *NotUsed, int argc, char **argv, char **azColName)
+{
+   return 0;
+}
+
+void DatabaseHandler::DB_initialization()
+{
+    // request initialization
+    m_sql_request = string();
+
+    m_sql_request.append("CREATE TABLE TASKS("
+                         "NUMBER INTEGER PRIMARY KEY AUTOINCREMENT,"
+                         "NAME TEXT NOT NULL,"
+                         "IS_IMPORTANT INTEGER NOT NULL,"
+                         "COMMENTS TEXT,"
+                         "IS_DATED INTEGER NOT NULL,"
+                         "DAY INTEGER NOT NULL,"
+                         "MONTH INTEGER NOT NULL,"
+                         "YEAR INTEGER NOT NULL,"
+                         "WEEK_NUMBER INTEGER NOT NULL,"
+                         "REMINDER INTEGER NOT NULL,"
+                         "WEEKS_BEFORE_TASK INTEGER NOT NULL,"
+                         "IS_PERIODIC INTEGER NOT NULL,"
+                         "PERIODICITY INTEGER NOT NULL,"
+                         "IS_PROCESSED INTEGER NOT NULL);");
+
+    // DB opening
+    DB_opening();
+
+    // DB insertion
+    m_rc = sqlite3_exec(m_database, m_sql_request.c_str(), dummy_callback, 0, &m_zErrMsg);
+
+    if( m_rc != SQLITE_OK )
+    {
+        QMessageBox::information(nullptr, "Création de la table \"TASKS\" dans la DB", "Problème lors de la création de la table \"TASKS\"");
+        sqlite3_free(m_zErrMsg);
+    }
+
+    // DB closing
+    DB_closing();
+}
 
 // Ouverture DB
 void DatabaseHandler::DB_opening()

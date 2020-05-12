@@ -13,11 +13,13 @@ using namespace std;
 // --------------------------
 
 // Constructor
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QString const& database_complete_path,
+                       bool const& database_folder_automatically_initiated,
+                       QWidget *parent) :
                        QMainWindow(parent),
                        ui(new Ui::MainWindow),
                        m_data_from_DB(new map<string, string>()),
-                       tm(TaskManager()),
+                       tm(TaskManager(database_complete_path, database_folder_automatically_initiated)),
                        m_choix_gdt(0),
                        m_selected_task_number(0),
                        m_current_date(QDate(QDate::currentDate())),
@@ -39,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
                        m_sunday_tasks_sa_base_widget(new QWidget()),
                        m_non_dated_tasks_sa_base_widget(new QWidget()),
                        m_important_tasks_sa_base_widget(new QWidget()),
-                       m_sa_list(vector<QWidget *>())              // fuite mémoire ou pas lors de la fermeture du pgm ?
+                       m_sa_list(vector<QWidget *>())       // fuite mémoire ou pas lors de la fermeture du pgm ?
 {
     // HMI global initializations
     ui->setupUi(this);

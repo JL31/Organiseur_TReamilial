@@ -20,6 +20,7 @@ SOURCES += \
     basetask.cpp \
     checkabletaskbutton.cpp \
     databasehandler.cpp \
+    datainitializations.cpp \
     ihm_gestion_des_taches.cpp \
     importanttaskbutton.cpp \
     main.cpp \
@@ -37,6 +38,7 @@ HEADERS += \
     basetask.h \
     checkabletaskbutton.h \
     databasehandler.h \
+    datainitializations.h \
     ihm_gestion_des_taches.h \
     importanttaskbutton.h \
     mainwindow.h \
@@ -61,4 +63,6 @@ RESOURCES += \
     icones.qrc
 
 LIBS += \
-    -lsqlite3
+    -lsqlite3 \
+    -lboost_system \
+    -lboost_filesystem

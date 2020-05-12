@@ -16,6 +16,25 @@
   <widget class="QWidget" name="layout_principal">
    <layout class="QHBoxLayout" name="horizontalLayout_3">
     <item>
+     <widget class="QGroupBox" name="gb_task_handler">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>275</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item>
      <layout class="QVBoxLayout" name="verticalLayout_10">
       <item>
        <widget class="QGroupBox" name="gb_taches_urgentes">
@@ -74,13 +93,13 @@
              <property name="minimumSize">
               <size>
                <width>90</width>
-               <height>125</height>
+               <height>130</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>90</width>
-               <height>150</height>
+               <height>130</height>
               </size>
              </property>
              <property name="text">
@@ -100,13 +119,13 @@ précédente</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>150</height>
+               <height>130</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>16777215</width>
-               <height>150</height>
+               <height>130</height>
               </size>
              </property>
              <property name="verticalScrollBarPolicy">
@@ -126,8 +145,8 @@ précédente</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>421</width>
-                <height>148</height>
+                <width>150</width>
+                <height>128</height>
                </rect>
               </property>
              </widget>
@@ -144,13 +163,13 @@ précédente</string>
              <property name="minimumSize">
               <size>
                <width>90</width>
-               <height>125</height>
+               <height>130</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>90</width>
-               <height>150</height>
+               <height>130</height>
               </size>
              </property>
              <property name="text">
@@ -213,8 +232,8 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>79</width>
-                <height>305</height>
+                <width>41</width>
+                <height>325</height>
                </rect>
               </property>
              </widget>
@@ -250,8 +269,8 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>79</width>
-                <height>305</height>
+                <width>40</width>
+                <height>325</height>
                </rect>
               </property>
              </widget>
@@ -287,8 +306,8 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>79</width>
-                <height>305</height>
+                <width>40</width>
+                <height>325</height>
                </rect>
               </property>
              </widget>
@@ -324,8 +343,8 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>79</width>
-                <height>305</height>
+                <width>41</width>
+                <height>325</height>
                </rect>
               </property>
              </widget>
@@ -361,8 +380,8 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>79</width>
-                <height>305</height>
+                <width>40</width>
+                <height>325</height>
                </rect>
               </property>
              </widget>
@@ -398,8 +417,8 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>79</width>
-                <height>305</height>
+                <width>40</width>
+                <height>325</height>
                </rect>
               </property>
              </widget>
@@ -435,8 +454,8 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>79</width>
-                <height>305</height>
+                <width>40</width>
+                <height>325</height>
                </rect>
               </property>
              </widget>
@@ -459,13 +478,13 @@ suivante</string>
       </property>
       <property name="minimumSize">
        <size>
-        <width>165</width>
+        <width>155</width>
         <height>0</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>170</width>
+        <width>155</width>
         <height>16777215</height>
        </size>
       </property>
@@ -498,7 +517,7 @@ suivante</string>
          </property>
          <property name="maximumSize">
           <size>
-           <width>145</width>
+           <width>150</width>
            <height>55</height>
           </size>
          </property>
@@ -536,7 +555,7 @@ suivante</string>
          </property>
          <property name="maximumSize">
           <size>
-           <width>150</width>
+           <width>145</width>
            <height>16777215</height>
           </size>
          </property>
@@ -557,7 +576,7 @@ suivante</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>139</width>
+            <width>129</width>
             <height>514</height>
            </rect>
           </property>

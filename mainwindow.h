@@ -31,7 +31,9 @@ class MainWindow : public QMainWindow
 
     public:
         // Constructor and destructor
-            MainWindow(QWidget *parent = nullptr);
+            MainWindow(QString const& database_complete_path,
+                       bool const& database_folder_automatically_initiated,
+                       QWidget *parent = nullptr);
             ~MainWindow();
 
         // Methods

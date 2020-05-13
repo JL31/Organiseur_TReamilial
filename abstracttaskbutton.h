@@ -14,7 +14,6 @@ class AbstractTaskButton : public QPushButton
             virtual ~AbstractTaskButton();
 
         // Methods
-            void mouseDoubleClickEvent(QMouseEvent *event);
             virtual void adapt_button_text();
             virtual void set_button_color() = 0;
             virtual void set_checkable_state() = 0;

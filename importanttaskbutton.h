@@ -1,9 +1,9 @@
 #ifndef IMPORTANTTASKBUTTON_H
 #define IMPORTANTTASKBUTTON_H
 
-#include "abstracttaskbutton.h"
+#include "abstractnoncheckabletaskbutton.h"
 
-class ImportantTaskButton : public AbstractTaskButton
+class ImportantTaskButton : public AbstractNonCheckableTaskButton
 {
     public:
         // Constructor and destructor
@@ -13,7 +13,6 @@ class ImportantTaskButton : public AbstractTaskButton
 
         // Methods
             virtual void set_button_color();
-            virtual void set_checkable_state();
 };
 
 #endif // IMPORTANTTASKBUTTON_H

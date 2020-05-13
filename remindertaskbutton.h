@@ -1,9 +1,9 @@
 #ifndef REMINDERTASKBUTTON_H
 #define REMINDERTASKBUTTON_H
 
-#include "abstracttaskbutton.h"
+#include "abstractnoncheckabletaskbutton.h"
 
-class ReminderTaskButton : public AbstractTaskButton
+class ReminderTaskButton : public AbstractNonCheckableTaskButton
 {
     public:
         // Constructor and destructor
@@ -14,10 +14,6 @@ class ReminderTaskButton : public AbstractTaskButton
         // Methods
             virtual void adapt_button_text();
             virtual void set_button_color();
-            virtual void set_checkable_state();
-
-    protected:
-         // Attributes
 };
 
 #endif // REMINDERTASKBUTTON_H

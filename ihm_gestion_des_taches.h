@@ -37,6 +37,7 @@ class IHMGestionDesTaches : public QDialog, public Ui::FenetreGestionDesTaches
 
     public slots:
         void dated_task_selection();
+        void name_content_length_check(QString const& text);
 
     protected:
         Ui::FenetreGestionDesTaches *ui;

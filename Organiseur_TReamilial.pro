@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     abstracttaskbutton.cpp \
+    abstractnoncheckabletaskbutton.cpp \
     basetask.cpp \
     checkabletaskbutton.cpp \
     databasehandler.cpp \
@@ -35,6 +36,7 @@ SOURCES += \
 
 HEADERS += \
     abstracttaskbutton.h \
+    abstractnoncheckabletaskbutton.h \
     basetask.h \
     checkabletaskbutton.h \
     databasehandler.h \

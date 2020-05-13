@@ -5,7 +5,7 @@
 
 // Constructor
 ReminderTaskButton::ReminderTaskButton(QString const& button_text,
-                                       BaseTask *task) : AbstractTaskButton(button_text, task)
+                                       BaseTask *task) : AbstractNonCheckableTaskButton(button_text, task)
 {
     adapt_button_text();
     set_button_color();
@@ -51,11 +51,4 @@ void ReminderTaskButton::adapt_button_text()
 void ReminderTaskButton::set_button_color()
 {
     this->setStyleSheet("background-color:rgb(0, 150, 220)");
-}
-
-
-// Method that enables to define if the current button can be checkable or not
-void ReminderTaskButton::set_checkable_state()
-{
-    this->setCheckable(false);
 }

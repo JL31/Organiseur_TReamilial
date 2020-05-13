@@ -2,6 +2,7 @@
 // Includes
 #include "ihm_gestion_des_taches.h"
 #include "taskmanager.h"
+#include <QMessageBox>
 
 using namespace std;
 
@@ -28,6 +29,21 @@ void IHMGestionDesTaches::connexions() const
     connect(ui->validate_button, SIGNAL(clicked()), this, SLOT(accept()));
     connect(ui->cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
     connect(ui->gb_dated_task, SIGNAL(toggled(bool)), this, SLOT(dated_task_selection()));
+
+    connect(ui->le_task_name, SIGNAL(textChanged(QString)), this, SLOT(name_content_length_check(QString)));
+}
+
+
+// ...
+void IHMGestionDesTaches::name_content_length_check(QString const& text)
+{
+    if ( text.length() > 11 and text.split(" ")[0].length() > 11 )
+    {
+        QString message = "Merci d'utiliser moins de 12 caractères pour le premier mot du nom de la tâche";
+        QMessageBox::information(this, "Trop de caractères pour le premier mot !", message);
+
+        ui->le_task_name->backspace();  // permet de supprimer le caractère en trop
+    }
 }
 
 

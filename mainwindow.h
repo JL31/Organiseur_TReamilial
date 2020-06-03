@@ -8,6 +8,7 @@
 #include "ihm_gestion_des_taches.h"
 #include "taskbutton.h"
 #include "task.h"
+#include "taskhandlinghmi.h"
 
 #include <map>
 #include <vector>
@@ -37,6 +38,7 @@ class MainWindow : public QMainWindow
             ~MainWindow();
 
         // Methods
+            void task_addition_button_initialization();
             void scroll_areas_initialization();
             void days_spacer_addition();
             void actions_connection() const;
@@ -48,6 +50,7 @@ class MainWindow : public QMainWindow
             void calendar_tasks_update();
             void reminder_tasks_update();
             void connect_task_button_signals();
+            void clear_layout(QLayout *layout);
 
     public slots:
         void change_task_number_and_selected_button(int const& task_number);
@@ -55,8 +58,11 @@ class MainWindow : public QMainWindow
         void go_to_previous_week();
         void go_to_next_week();
         void task_addition();
+        void task_modification_initialization();
         void task_modification();
         void processed_task();
+        void task_addition_button_SLOT();
+        void task_addition_initialization();
 
     private:
         Ui::MainWindow *ui;
@@ -89,5 +95,8 @@ class MainWindow : public QMainWindow
         QWidget *m_important_tasks_sa_base_widget;
 
         std::vector<QWidget *> m_sa_list;
+
+        TaskHandlingHMI *m_task_handling_hmi;
+        QVBoxLayout *m_gb_task_handler_layout;
 };
 #endif // MAINWINDOW_H

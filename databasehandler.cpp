@@ -276,7 +276,7 @@ void DatabaseHandler::DB_task_modification(string const& number,
     m_sql_request.append(periodicity);
     m_sql_request.append(",\n");
 
-    m_sql_request.append("    IS_PROCESSED = 0,\n");    // IS_PROCESSED is 0 for task modification
+    m_sql_request.append("    IS_PROCESSED = 0\n");    // IS_PROCESSED is 0 for task modification
 
     m_sql_request.append("WHERE\n");
     m_sql_request.append("    NUMBER = ");
@@ -293,10 +293,6 @@ void DatabaseHandler::DB_task_modification(string const& number,
     {
         QMessageBox::information(nullptr, "Modification d'une tâche dans la DB", "Problème de mise-à-jour de la DB");
         sqlite3_free(m_zErrMsg);
-    }
-    else
-    {
-        QMessageBox::information(nullptr, "Modification d'une tâche dans la DB", "Les données ont bien été mise-à-jour");
     }
 
     // DB closing

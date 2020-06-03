@@ -41,7 +41,8 @@ MainWindow::MainWindow(QString const& database_complete_path,
                        m_sunday_tasks_sa_base_widget(new QWidget()),
                        m_non_dated_tasks_sa_base_widget(new QWidget()),
                        m_important_tasks_sa_base_widget(new QWidget()),
-                       m_sa_list(vector<QWidget *>())       // fuite mémoire ou pas lors de la fermeture du pgm ?
+                       m_sa_list(vector<QWidget *>()),       // fuite mémoire ou pas lors de la fermeture du pgm ?
+                       m_gb_task_handler_layout(new QVBoxLayout())
 {
     // HMI global initializations
     ui->setupUi(this);
@@ -62,6 +63,7 @@ MainWindow::MainWindow(QString const& database_complete_path,
     i_to_s_month[12] = "décembre";
 
     // others initializations
+    task_addition_button_initialization();
     scroll_areas_initialization();
     actions_connection();
     calendar_week_update();
@@ -82,6 +84,23 @@ MainWindow::~MainWindow()
 
 // Methods
 // -------
+
+// Method that adds the button, into the HMI, to add tasks
+void MainWindow::task_addition_button_initialization()
+{
+    QPushButton *task_addition_button = new QPushButton("Ajouter une tâche");
+    const QSize button_size = QSize(80, 120);
+    task_addition_button->setMinimumSize(button_size);
+
+    m_gb_task_handler_layout->setMargin(10);
+    m_gb_task_handler_layout->addWidget(task_addition_button);
+
+    ui->gb_task_handler->setAttribute(Qt::WA_LayoutOnEntireRect);
+    ui->gb_task_handler->setLayout(m_gb_task_handler_layout);
+
+    connect(task_addition_button, SIGNAL(clicked()), this, SLOT(task_addition_initialization()));
+}
+
 
 // Method that defines the layout for the several days group boxes
 void MainWindow::scroll_areas_initialization()
@@ -136,15 +155,10 @@ void MainWindow::days_spacer_addition()
 // Actions connection
 void MainWindow::actions_connection() const
 {
-    // Connexion des actions du menu "Menu"
+    // menu action connection
     connect(ui->action_Quitter, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-    // Connexion des actions du menu "Gestion des tâches"
-    connect(ui->action_Ajouter_une_tache, SIGNAL(triggered()), this, SLOT(task_addition()));
-
-    connect(ui->action_Modifier_une_tache, SIGNAL(triggered()), this, SLOT(task_modification()));
-    connect(ui->action_Valider_une_tache, SIGNAL(triggered()), this, SLOT(processed_task()));
-
+    // change week buttons connection
     connect(ui->b_semaine_precedente, SIGNAL(clicked()), this, SLOT(go_to_previous_week()));
     connect(ui->b_semaine_suivante, SIGNAL(clicked()), this, SLOT(go_to_next_week()));
 }
@@ -225,7 +239,7 @@ void MainWindow::prior_cleaning_and_initialization()
         (*it) = nullptr;
     }
 
-    // ... pris sur le net : https://stackoverflow.com/questions/23461614/delete-all-qspaceritem-from-a-layout
+    // to remove spacer items (cf https://stackoverflow.com/questions/23461614/delete-all-qspaceritem-from-a-layout)
     for ( auto it = m_sa_list.begin(); it != m_sa_list.end(); it++ )
     {
         for (int i = 0; i < (*it)->layout()->count(); ++i)
@@ -268,7 +282,7 @@ void MainWindow::prior_cleaning_and_initialization()
         (*it) = nullptr;
     }
 
-    // ... pris sur le net : https://stackoverflow.com/questions/23461614/delete-all-qspaceritem-from-a-layout
+    // to remove spacer items (cf https://stackoverflow.com/questions/23461614/delete-all-qspaceritem-from-a-layout)
     for (int i = 0; i < m_important_tasks_layout->count(); ++i)
     {
         if ( m_important_tasks_layout->itemAt(i)->spacerItem() )
@@ -463,6 +477,9 @@ void MainWindow::change_task_number_and_selected_button(int const& task_number)
     }
 
     m_selected_task_number = task_number;
+
+    // to display the modification_validation HMI
+    task_modification_initialization();
 }
 
 
@@ -476,6 +493,9 @@ void MainWindow::change_task_number(int const& task_number)
     else
     {
         m_selected_task_number = 0;
+
+        // call of the SLOT that adds a button for task addition
+        task_addition_button_SLOT();
     }
 }
 
@@ -512,139 +532,198 @@ void MainWindow::go_to_next_week()
 }
 
 
-// SLOT code to add a task
-void MainWindow::task_addition()
+// Method that enables to clear a layout
+void MainWindow::clear_layout(QLayout *layout)
 {
-    ihm_gdt = new IHMGestionDesTaches(this);
-    m_choix_gdt = ihm_gdt->exec();
+    QLayoutItem *item;
 
-    if (m_choix_gdt == QDialog::Accepted)
+    while( ( item = layout->takeAt(0) ) )
     {
-        // variables initialization
-        QDate date;
-        int weeks_before_task;
-        int periodicity;
-
-        // is_dated case
-        if ( ihm_gdt->get_is_dated() )
+        if ( item->layout() )
         {
-            date = QDate(ihm_gdt->get_date());
-        }
-        else
-        {
-            date = QDate(1900, 1, 1);
+            clear_layout(item->layout());
+            delete item->layout();
         }
 
-        // reminder case
-        if (ihm_gdt->get_reminder())
+        if ( item->widget() )
         {
-            weeks_before_task = int(ihm_gdt->get_weeks_before_task());
-        }
-        else
-        {
-            weeks_before_task = int(0);
+           delete item->widget();
         }
 
-        // periodic task case
-        if (ihm_gdt->get_is_periodic())
-        {
-            periodicity = int(ihm_gdt->get_periodicity());
-        }
-        else
-        {
-            periodicity = int(0);
-        }
-
-        // task addition into DB
-        tm.add_task(ihm_gdt->get_name(),
-                    ihm_gdt->get_is_important(),
-                    ihm_gdt->get_comments(),
-                    ihm_gdt->get_is_dated(),
-                    date,
-                    ihm_gdt->get_reminder(),
-                    weeks_before_task,
-                    ihm_gdt->get_is_periodic(),
-                    periodicity);
+        delete item;
     }
-
-    // Mise-à-jour des tâches
-    tasks_update();
-
-    // attribute cleaning
-    delete ihm_gdt;
-    ihm_gdt = nullptr;
-
 }
 
 
-// SLOT code to modify an existing task
-void MainWindow::task_modification()
+// SLOT code that adds a button for task addition
+void MainWindow::task_addition_button_SLOT()
+{
+    delete m_task_handling_hmi;
+    m_task_handling_hmi = nullptr;
+
+    clear_layout(m_gb_task_handler_layout);
+
+    task_addition_button_initialization();
+}
+
+
+// Method to prepare the HMI for task addition
+void MainWindow::task_addition_initialization()
+{
+    clear_layout(m_gb_task_handler_layout);
+
+    m_task_handling_hmi = new TaskHandlingHMI(this);
+    m_gb_task_handler_layout->setMargin(0);
+    m_gb_task_handler_layout->addWidget(m_task_handling_hmi);
+
+    ui->gb_task_handler->setLayout(m_gb_task_handler_layout);
+    ui->gb_task_handler->setAttribute(Qt::WA_LayoutOnEntireRect);
+
+    connect(m_task_handling_hmi->get_cancel_validate_button(), SIGNAL(clicked()), this, SLOT(task_addition_button_SLOT()));
+    connect(m_task_handling_hmi->get_add_modify_button(), SIGNAL(clicked()), this, SLOT(task_addition()));
+}
+
+
+// Method to add a task
+void MainWindow::task_addition()
+{
+    // variables initialization
+    QDate date;
+    int weeks_before_task;
+    int periodicity;
+
+    // is_dated case
+    if ( m_task_handling_hmi->get_is_dated() )
+    {
+        date = QDate(m_task_handling_hmi->get_date());
+    }
+    else
+    {
+        date = QDate(1900, 1, 1);
+    }
+
+    // reminder case
+    if (m_task_handling_hmi->get_reminder())
+    {
+        weeks_before_task = int(m_task_handling_hmi->get_weeks_before_task());
+    }
+    else
+    {
+        weeks_before_task = int(0);
+    }
+
+    // periodic task case
+    if (m_task_handling_hmi->get_is_periodic())
+    {
+        periodicity = int(m_task_handling_hmi->get_periodicity());
+    }
+    else
+    {
+        periodicity = int(0);
+    }
+
+    // task addition into DB
+    tm.add_task(m_task_handling_hmi->get_name(),
+                m_task_handling_hmi->get_is_important(),
+                m_task_handling_hmi->get_comments(),
+                m_task_handling_hmi->get_is_dated(),
+                date,
+                m_task_handling_hmi->get_reminder(),
+                weeks_before_task,
+                m_task_handling_hmi->get_is_periodic(),
+                periodicity);
+
+    // tasks update
+    tasks_update();
+
+    // call of the SLOT that adds a button for task addition
+    task_addition_button_SLOT();
+}
+
+
+// SLOT code to initialize the task modification / validation HMI
+void MainWindow::task_modification_initialization()
 {
     // prior cleaning
     m_data_from_DB->clear();
 
-    // Récupération des infos de la tâche sélectionnée
+    // data retrieval for the selected task
     tm.data_retrieval(m_selected_task_number, m_data_from_DB);
 
-    // Initialisation de l'IHM de gestion des tâches
-    ihm_gdt = new IHMGestionDesTaches(this);
-    ihm_gdt->dialog_initialization_for_task_modification(m_data_from_DB);
+    // prior task handler group box layout cleaning
+    clear_layout(m_gb_task_handler_layout);
 
-    // Lancement de l'IHM de gestion des tâches
-    m_choix_gdt = ihm_gdt->exec();
+    m_task_handling_hmi = new TaskHandlingHMI(this);
+    m_task_handling_hmi->dialog_initialization_for_task_modification(m_data_from_DB);
 
-    if (m_choix_gdt == QDialog::Accepted)
+    m_gb_task_handler_layout->setMargin(0);
+    m_gb_task_handler_layout->addWidget(m_task_handling_hmi);
+
+    ui->gb_task_handler->setLayout(m_gb_task_handler_layout);
+    ui->gb_task_handler->setAttribute(Qt::WA_LayoutOnEntireRect);
+
+    connect(m_task_handling_hmi->get_cancel_validate_button(), SIGNAL(clicked()), this, SLOT(processed_task()));
+    connect(m_task_handling_hmi->get_add_modify_button(), SIGNAL(clicked()), this, SLOT(task_modification()));
+}
+
+// SLOT code to modify an existing task
+void MainWindow::task_modification()
+{
+    // variables initializations
+    QDate date;
+    int weeks_before_task;
+    int periodicity;
+
+    // is_dated case
+    if ( m_task_handling_hmi->get_is_dated() )
     {
-        // variables initializations
-        QDate date;
-        int weeks_before_task;
-        int periodicity;
-
-        // is_dated case
-        if ( ihm_gdt->get_is_dated() )
-        {
-            date = QDate(ihm_gdt->get_date());
-        }
-        else
-        {
-            date = QDate(QDate::currentDate());
-        }
-
-        // reminder case
-        if (ihm_gdt->get_reminder())
-        {
-            weeks_before_task = int(ihm_gdt->get_weeks_before_task());
-        }
-        else
-        {
-            weeks_before_task = int(0);
-        }
-
-        // periodic task case
-        if (ihm_gdt->get_is_periodic())
-        {
-            periodicity = int(ihm_gdt->get_periodicity());
-        }
-        else
-        {
-            periodicity = int(0);
-        }
-
-        tm.modify_task(m_selected_task_number,
-                       ihm_gdt->get_name(),
-                       ihm_gdt->get_is_important(),
-                       ihm_gdt->get_comments(),
-                       ihm_gdt->get_is_dated(),
-                       date,
-                       ihm_gdt->get_reminder(),
-                       weeks_before_task,
-                       ihm_gdt->get_is_periodic(),
-                       periodicity);
+        date = QDate(m_task_handling_hmi->get_date());
+    }
+    else
+    {
+        date = QDate(QDate::currentDate());
     }
 
-    // Attribute cleaning
-    delete ihm_gdt;
-    ihm_gdt = nullptr;
+    // reminder case
+    if (m_task_handling_hmi->get_reminder())
+    {
+        weeks_before_task = int(m_task_handling_hmi->get_weeks_before_task());
+    }
+    else
+    {
+        weeks_before_task = int(0);
+    }
+
+    // periodic task case
+    if (m_task_handling_hmi->get_is_periodic())
+    {
+        periodicity = int(m_task_handling_hmi->get_periodicity());
+    }
+    else
+    {
+        periodicity = int(0);
+    }
+
+    // actual task modification into database
+    tm.modify_task(m_selected_task_number,
+                   m_task_handling_hmi->get_name(),
+                   m_task_handling_hmi->get_is_important(),
+                   m_task_handling_hmi->get_comments(),
+                   m_task_handling_hmi->get_is_dated(),
+                   date,
+                   m_task_handling_hmi->get_reminder(),
+                   weeks_before_task,
+                   m_task_handling_hmi->get_is_periodic(),
+                   periodicity);
+
+    // Message to inform user that the task modification is done
+    QMessageBox::information(this, "Modification de la tâche sélectionnée", "La tâche n°" + QString::number(m_selected_task_number) + " a bien été modifiée");
+
+    // tasks update
+    tasks_update();
+
+    // call of the SLOT that adds a button for task addition
+    task_addition_button_SLOT();
 }
 
 
@@ -660,8 +739,14 @@ void MainWindow::processed_task()
     // decision treatment
     if ( validation_decision == QMessageBox::Yes )
     {
+        // actual task validation
         tm.validate_task(m_selected_task_number);
+
+        // tasks update
         tasks_update();
+
+        // call of the SLOT that adds a button for task addition
+        task_addition_button_SLOT();
     }
 }
 

@@ -32,6 +32,7 @@ SOURCES += \
     periodictask.cpp \
     reminder.cpp \
     remindertaskbutton.cpp \
+    taskhandlinghmi.cpp \
     taskmanager.cpp
 
 HEADERS += \
@@ -50,11 +51,13 @@ HEADERS += \
     periodictask.h \
     reminder.h \
     remindertaskbutton.h \
+    taskhandlinghmi.h \
     taskmanager.h
 
 FORMS += \
     fenetre_gestion_des_taches.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    task_handling_hmi.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

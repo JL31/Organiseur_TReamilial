@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>872</width>
+    <width>1066</width>
     <height>674</height>
    </rect>
   </property>
@@ -145,7 +145,7 @@ précédente</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>150</width>
+                <width>384</width>
                 <height>128</height>
                </rect>
               </property>
@@ -232,7 +232,7 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>41</width>
+                <width>74</width>
                 <height>325</height>
                </rect>
               </property>
@@ -269,7 +269,7 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>40</width>
+                <width>73</width>
                 <height>325</height>
                </rect>
               </property>
@@ -306,7 +306,7 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>40</width>
+                <width>74</width>
                 <height>325</height>
                </rect>
               </property>
@@ -343,7 +343,7 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>41</width>
+                <width>74</width>
                 <height>325</height>
                </rect>
               </property>
@@ -380,7 +380,7 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>40</width>
+                <width>74</width>
                 <height>325</height>
                </rect>
               </property>
@@ -417,7 +417,7 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>40</width>
+                <width>73</width>
                 <height>325</height>
                </rect>
               </property>
@@ -454,7 +454,7 @@ suivante</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>40</width>
+                <width>74</width>
                 <height>325</height>
                </rect>
               </property>
@@ -593,18 +593,10 @@ suivante</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>872</width>
+     <width>1066</width>
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_Gestion_des_taches">
-    <property name="title">
-     <string>&amp;Gestion des tâches</string>
-    </property>
-    <addaction name="action_Ajouter_une_tache"/>
-    <addaction name="action_Modifier_une_tache"/>
-    <addaction name="action_Valider_une_tache"/>
-   </widget>
    <widget class="QMenu" name="menu_Menu">
     <property name="title">
      <string>&amp;Menu</string>
@@ -612,22 +604,6 @@ suivante</string>
     <addaction name="action_Quitter"/>
    </widget>
    <addaction name="menu_Menu"/>
-   <addaction name="menu_Gestion_des_taches"/>
-  </widget>
-  <widget class="QToolBar" name="toolBar">
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>LeftToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="action_Ajouter_une_tache"/>
-   <addaction name="action_Modifier_une_tache"/>
-   <addaction name="action_Valider_une_tache"/>
-   <addaction name="action_Quitter"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_Ajouter_une_tache">

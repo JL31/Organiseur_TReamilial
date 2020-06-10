@@ -227,6 +227,7 @@ void TaskManager::add_periodic_task_and_sub_tasks(map<string, string> periodic_t
     // data retrieval into database
     m_db_handler.DB_get_periodic_task_sub_tasks(periodic_task_data["NUMBER"], sub_tasks_extraction_from_DB);
 
+    // there are NO sub tasks associated to the current task
     if ( sub_tasks_extraction_from_DB->empty() )
     {
         // variable initialization
@@ -260,8 +261,13 @@ void TaskManager::add_periodic_task_and_sub_tasks(map<string, string> periodic_t
                                                                                recalculated_date,
                                                                                0);
     }
+    // there are sub tasks associated to the current task
     else
     {
+        // variable initialization
+        bool current_periodic_sub_task_exists(false);
+
+        // iteration over the sub tasks
         for ( auto st_it = sub_tasks_extraction_from_DB->begin(); st_it != sub_tasks_extraction_from_DB->end(); st_it++ )
         {
             // sub task date definition
@@ -292,7 +298,44 @@ void TaskManager::add_periodic_task_and_sub_tasks(map<string, string> periodic_t
                 m_periodic_tasks_list[stoi(periodic_task_data["NUMBER"])].add_sub_task(stoi((*st_it)["NUMBER"]),
                                                                           sub_task_date,
                                                                           0);
+
+                current_periodic_sub_task_exists = true;
             }
+        }
+
+        // if there are no sub tasks with the current date so it must be created
+        if ( not current_periodic_sub_task_exists )
+        {
+            // variable initialization
+            int last_added_sub_task_number;
+
+            last_added_sub_task_number = m_db_handler.add_sub_task_to_periodic_task(to_string(recalculated_date.day()),
+                                                                                    to_string(recalculated_date.month()),
+                                                                                    to_string(recalculated_date.year()),
+                                                                                    to_string(recalculated_date.weekNumber()),
+                                                                                    periodic_task_data["NUMBER"]);
+
+            m_periodic_tasks_list.insert(make_pair(stoi(periodic_task_data["NUMBER"]),
+                                                   PeriodicTask(stoi(periodic_task_data["NUMBER"]),
+                                                                QString::fromStdString(periodic_task_data["NAME"]),
+                                                                QString::fromStdString(periodic_task_data["COMMENTS"]),
+                                                                stoi(periodic_task_data["IS_IMPORTANT"]),
+                                                                stoi(periodic_task_data["IS_PROCESSED"]),
+                                                                stoi(periodic_task_data["IS_DATED"]),
+                                                                QDate(stoi(periodic_task_data["YEAR"]),
+                                                                      stoi(periodic_task_data["MONTH"]),
+                                                                      stoi(periodic_task_data["DAY"])),
+                                                                stoi(periodic_task_data["REMINDER"]),
+                                                                stoi(periodic_task_data["WEEKS_BEFORE_TASK"]),
+                                                                stoi(periodic_task_data["IS_PERIODIC"]),
+                                                                stoi(periodic_task_data["PERIODICITY"])
+                                                               )
+                                                  )
+                                        );
+
+            m_periodic_tasks_list[stoi(periodic_task_data["NUMBER"])].add_sub_task(last_added_sub_task_number,
+                                                                                   recalculated_date,
+                                                                                   0);
         }
     }
 
@@ -377,7 +420,7 @@ void TaskManager::load_periodic_tasks(QDate const& current_week_date)
         // periodic task date is current date
         else if ( ( current_week_date.weekNumber() == current_periodic_task_date.weekNumber() ) and ( current_week_date.year() == current_periodic_task_date.year() ) )
         {
-            QDate recalculated_date = current_week_date;
+            QDate recalculated_date = current_periodic_task_date;
             add_periodic_task_and_sub_tasks(*it, current_week_date, recalculated_date);
         }
     }
@@ -453,7 +496,8 @@ void TaskManager::load_important_tasks_list(int const& current_year, int const& 
         }
     }
 
-    // ...
+    /*
+     * // ...
     for (auto it = m_periodic_tasks_list.begin(); it != m_periodic_tasks_list.end(); it++)
     {
         if ( ( it->second.get_date().year() == current_year ) and
@@ -467,6 +511,7 @@ void TaskManager::load_important_tasks_list(int const& current_year, int const& 
                                             );
         }
     }
+    */
 
     // important tasks list filling-in with important non dated tasks
     for (auto it = m_non_dated_tasks_list.begin(); it != m_non_dated_tasks_list.end(); it++)

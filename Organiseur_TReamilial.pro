@@ -22,7 +22,6 @@ SOURCES += \
     checkabletaskbutton.cpp \
     databasehandler.cpp \
     datainitializations.cpp \
-    ihm_gestion_des_taches.cpp \
     importanttaskbutton.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -30,6 +29,7 @@ SOURCES += \
     normaltask.cpp \
     periodicsubtask.cpp \
     periodictask.cpp \
+    periodictaskbutton.cpp \
     reminder.cpp \
     remindertaskbutton.cpp \
     taskhandlinghmi.cpp \
@@ -42,20 +42,19 @@ HEADERS += \
     checkabletaskbutton.h \
     databasehandler.h \
     datainitializations.h \
-    ihm_gestion_des_taches.h \
     importanttaskbutton.h \
     mainwindow.h \
     nondatedtask.h \
     normaltask.h \
     periodicsubtask.h \
     periodictask.h \
+    periodictaskbutton.h \
     reminder.h \
     remindertaskbutton.h \
     taskhandlinghmi.h \
     taskmanager.h
 
 FORMS += \
-    fenetre_gestion_des_taches.ui \
     mainwindow.ui \
     task_handling_hmi.ui
 

@@ -7,6 +7,7 @@ class BaseTask
 {
     public:
         // Constructor and destructor
+            BaseTask();
             BaseTask(int number,
                      QString name,
                      QString comments);

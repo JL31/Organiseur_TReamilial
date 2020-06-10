@@ -21,7 +21,7 @@ AbstractNonCheckableTaskButton::~AbstractNonCheckableTaskButton()
 void AbstractNonCheckableTaskButton::mouseDoubleClickEvent(QMouseEvent *event)
 {
     QDialog *dialog_display_selected_task_data = new QDialog(this);
-    dialog_display_selected_task_data->setWindowTitle("Tâche n°" + QString::number(m_task->get_number()));
+    dialog_display_selected_task_data->setWindowTitle("Tâche " + QString::number(m_task->get_number()));
 
     QLabel *l_task_name = new QLabel("Nom de la tâche");
     QLineEdit *le_task_name = new QLineEdit(m_task->get_name());

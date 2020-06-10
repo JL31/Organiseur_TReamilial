@@ -45,17 +45,24 @@ class TaskManager
                                  bool const& is_periodic,
                                  int const& periodicity);
 
-                void validate_task(int const& number);
+                void validate_task(int const& task_number, int const& sub_task_number);
 
                 void data_retrieval(int const& number, std::map<std::string, std::string> *data_from_DB);
 
-            // ...
-                void load_current_week_data(int const& current_year, int const& current_week_number);
+            // Other methods
+                //void load_current_week_data(int const& current_year, int const& current_week_number);
+                void load_current_week_data(QDate const& current_week_date);
                 void task_lists_cleaning();
                 void load_non_dated_tasks();
                 void load_normal_tasks(int const& current_year, int const& current_week_number);
-                void load_reminders_list(int const& current_year, int const& current_week_number);
-                void load_important_tasks_list(int const& current_year, int const& current_week_number);
+                void add_periodic_task_and_sub_tasks(std::map<std::string, std::string> periodic_task_data,
+                                                     QDate const& current_week_date,
+                                                     QDate const& recalculated_date);
+                void load_periodic_tasks(QDate const& current_week_date);
+                void load_reminders_list(int const& current_year,
+                                         int const& current_week_number);
+                void load_important_tasks_list(int const& current_year,
+                                               int const& current_week_number);
 
             // Getters
                 std::map<int, NonDatedTask>& get_non_dated_tasks_list();

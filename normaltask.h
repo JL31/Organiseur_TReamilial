@@ -8,6 +8,7 @@ class NormalTask : public NonDatedTask
 {
     public:
         // Constructor and destructor
+            NormalTask();
             NormalTask(int const& number,
                        QString const& name,
                        QString const& comments,

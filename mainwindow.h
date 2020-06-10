@@ -5,7 +5,6 @@
 #include <QMainWindow>
 
 #include "taskmanager.h"
-#include "ihm_gestion_des_taches.h"
 #include "taskbutton.h"
 #include "task.h"
 #include "taskhandlinghmi.h"
@@ -63,14 +62,16 @@ class MainWindow : public QMainWindow
         void processed_task();
         void task_addition_button_SLOT();
         void task_addition_initialization();
+        void change_sub_task_number(int const& sub_task_number);
+        void quit_aplication();
 
     private:
         Ui::MainWindow *ui;
-        IHMGestionDesTaches *ihm_gdt;
         std::map<std::string, std::string> *m_data_from_DB;
         TaskManager tm;
         int m_choix_gdt;
         int m_selected_task_number;
+        int m_selected_sub_task_number;
         QDate m_current_date;
         std::map<int, QString> i_to_s_month;
 

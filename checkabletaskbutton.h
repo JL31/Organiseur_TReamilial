@@ -16,7 +16,7 @@ class CheckableTaskButton : public AbstractTaskButton
             virtual ~CheckableTaskButton();
 
         // Methods
-            void set_button_color();
+            virtual void set_button_color();
             virtual void set_checkable_state();
 
     public slots:

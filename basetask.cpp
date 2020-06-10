@@ -4,6 +4,9 @@
 // --------------------------
 
 // Constructor
+BaseTask::BaseTask()
+{}
+
 BaseTask::BaseTask(int number,
                    QString name,
                    QString comments) : m_number(number),

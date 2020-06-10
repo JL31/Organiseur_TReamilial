@@ -4,6 +4,9 @@
 // --------------------------
 
 // Constructor
+NonDatedTask::NonDatedTask()
+{}
+
 NonDatedTask::NonDatedTask(int const& number,
                            QString const& name,
                            QString const& comments,

@@ -2,8 +2,8 @@
 // Includes
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "ihm_gestion_des_taches.h"
 #include "checkabletaskbutton.h"
+#include "periodictaskbutton.h"
 #include "importanttaskbutton.h"
 #include "remindertaskbutton.h"
 
@@ -22,6 +22,7 @@ MainWindow::MainWindow(QString const& database_complete_path,
                        tm(TaskManager(database_complete_path, database_folder_automatically_initiated)),
                        m_choix_gdt(0),
                        m_selected_task_number(0),
+                       m_selected_sub_task_number(0),
                        m_current_date(QDate(QDate::currentDate())),
                        m_monday_tasks_layout(new QVBoxLayout()),
                        m_tuesday_tasks_layout(new QVBoxLayout()),
@@ -156,7 +157,7 @@ void MainWindow::days_spacer_addition()
 void MainWindow::actions_connection() const
 {
     // menu action connection
-    connect(ui->action_Quitter, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(ui->action_Quitter, SIGNAL(triggered()), this, SLOT(quit_aplication()));
 
     // change week buttons connection
     connect(ui->b_semaine_precedente, SIGNAL(clicked()), this, SLOT(go_to_previous_week()));
@@ -216,7 +217,7 @@ void MainWindow::tasks_update()
     calendar_tasks_update();
     important_tasks_update();
 
-    connect_task_button_signals();  // laisser cette méthode ici ? avec ce nom ?
+    connect_task_button_signals();
 }
 
 
@@ -294,7 +295,7 @@ void MainWindow::prior_cleaning_and_initialization()
     }
 
     // loading of the current week data through the TaskManager instance
-    tm.load_current_week_data(m_current_date.year(), m_current_date.weekNumber());
+    tm.load_current_week_data(m_current_date);
 }
 
 
@@ -375,6 +376,69 @@ void MainWindow::calendar_tasks_update()
         }
     }
 
+    // tasks creation for periodic tasks
+    for (auto it = tm.get_periodic_tasks_list().begin(); it != tm.get_periodic_tasks_list().end(); it++)
+    {
+        for ( auto st_it : it->second.get_periodic_sub_tasks_list() )
+       {
+           // variable initialization
+           int current_task_day_of_week = int(it->second.get_date().dayOfWeek());
+
+           // switch on the day of the week to create the task button on the appropriate day
+           switch (current_task_day_of_week)
+           {
+               case 1:
+
+                   m_monday_tasks_layout->addWidget(new PeriodicTaskButton(it->second.get_name(),
+                                                                           &(it->second),
+                                                                           st_it.get_st_number()));
+                   break;
+
+               case 2:
+
+                   m_tuesday_tasks_layout->addWidget(new PeriodicTaskButton(it->second.get_name(),
+                                                                            &(it->second),
+                                                                            st_it.get_st_number()));
+                   break;
+
+               case 3:
+
+                   m_wednesday_tasks_layout->addWidget(new PeriodicTaskButton(it->second.get_name(),
+                                                                              &(it->second),
+                                                                              st_it.get_st_number()));
+                   break;
+
+               case 4:
+
+                   m_thursday_tasks_layout->addWidget(new PeriodicTaskButton(it->second.get_name(),
+                                                                             &(it->second),
+                                                                             st_it.get_st_number()));
+                   break;
+
+               case 5:
+
+                   m_friday_tasks_layout->addWidget(new PeriodicTaskButton(it->second.get_name(),
+                                                                           &(it->second),
+                                                                           st_it.get_st_number()));
+                   break;
+
+               case 6:
+
+                   m_saturday_tasks_layout->addWidget(new PeriodicTaskButton(it->second.get_name(),
+                                                                             &(it->second),
+                                                                             st_it.get_st_number()));
+                   break;
+
+               case 7:
+
+                   m_sunday_tasks_layout->addWidget(new PeriodicTaskButton(it->second.get_name(),
+                                                                           &(it->second),
+                                                                           st_it.get_st_number()));
+                   break;
+           }
+       }
+    }
+
     // creation of the reminder tasks (i.e. the buttons)
     reminder_tasks_update();
 
@@ -437,6 +501,9 @@ void MainWindow::reminder_tasks_update()
 // Method to connect the CheckableTaskButton instance signals to the corresponding slots
 void MainWindow::connect_task_button_signals()
 {
+    // Non periodic task part
+    // ------------------
+
     // variable initialization
     QList<CheckableTaskButton *> task_button_list = QList<CheckableTaskButton *>();
 
@@ -452,13 +519,32 @@ void MainWindow::connect_task_button_signals()
         connect(*it, SIGNAL(button_state_and_task_number(int)), this, SLOT(change_task_number_and_selected_button(int)));
         connect(*it, SIGNAL(button_task_number(int)), this, SLOT(change_task_number(int)));
     }
+
+    // Periodic task part
+    // ------------------
+
+    // variable initialization
+    QList<PeriodicTaskButton *> periodic_task_button_list = QList<PeriodicTaskButton *>();
+
+    // retrieval of the PeriodicTaskButton instances of the calendar part of the HMI
+    for (auto it = m_sa_list.begin(); it != m_sa_list.end(); it++)
+    {
+        periodic_task_button_list.append((*it)->findChildren<PeriodicTaskButton *>());
+    }
+
+    // connection of the PeriodicTaskButton instances signals to the current class slot
+    for (auto it = periodic_task_button_list.begin(); it != periodic_task_button_list.end(); it++)
+    {
+        connect(*it, SIGNAL(sub_task_number(int)), this, SLOT(change_sub_task_number(int)));
+    }
+
 }
 
 
 // SLOTS
 // -----
 
-// Method to change the current task number and to uncheck the previously checked button
+// SLOT code to change the current task number and to uncheck the previously checked button
 void MainWindow::change_task_number_and_selected_button(int const& task_number)
 {
     QList<CheckableTaskButton *> task_button_list = QList<CheckableTaskButton *>();
@@ -482,8 +568,7 @@ void MainWindow::change_task_number_and_selected_button(int const& task_number)
     task_modification_initialization();
 }
 
-
-// Method to change the current task number
+// SLOT code to change the current task number
 void MainWindow::change_task_number(int const& task_number)
 {
     if ( m_selected_task_number != task_number )
@@ -499,6 +584,18 @@ void MainWindow::change_task_number(int const& task_number)
     }
 }
 
+// SLOT code to change the current sub task number
+void MainWindow::change_sub_task_number(int const& sub_task_number)
+{
+    if ( m_selected_sub_task_number != sub_task_number )
+    {
+        m_selected_sub_task_number = sub_task_number;
+    }
+    else
+    {
+        m_selected_sub_task_number = 0;
+    }
+}
 
 // SLOT code to go to previous week
 void MainWindow::go_to_previous_week()
@@ -515,7 +612,6 @@ void MainWindow::go_to_previous_week()
     tasks_update();
 }
 
-
 // SLOT code to go to next week
 void MainWindow::go_to_next_week()
 {
@@ -530,7 +626,6 @@ void MainWindow::go_to_next_week()
     // tasks update
     tasks_update();
 }
-
 
 // Method that enables to clear a layout
 void MainWindow::clear_layout(QLayout *layout)
@@ -554,7 +649,6 @@ void MainWindow::clear_layout(QLayout *layout)
     }
 }
 
-
 // SLOT code that adds a button for task addition
 void MainWindow::task_addition_button_SLOT()
 {
@@ -565,7 +659,6 @@ void MainWindow::task_addition_button_SLOT()
 
     task_addition_button_initialization();
 }
-
 
 // Method to prepare the HMI for task addition
 void MainWindow::task_addition_initialization()
@@ -582,7 +675,6 @@ void MainWindow::task_addition_initialization()
     connect(m_task_handling_hmi->get_cancel_validate_button(), SIGNAL(clicked()), this, SLOT(task_addition_button_SLOT()));
     connect(m_task_handling_hmi->get_add_modify_button(), SIGNAL(clicked()), this, SLOT(task_addition()));
 }
-
 
 // Method to add a task
 void MainWindow::task_addition()
@@ -639,7 +731,6 @@ void MainWindow::task_addition()
     // call of the SLOT that adds a button for task addition
     task_addition_button_SLOT();
 }
-
 
 // SLOT code to initialize the task modification / validation HMI
 void MainWindow::task_modification_initialization()
@@ -726,7 +817,6 @@ void MainWindow::task_modification()
     task_addition_button_SLOT();
 }
 
-
 // SLOT code to set a task as processed
 void MainWindow::processed_task()
 {
@@ -740,7 +830,11 @@ void MainWindow::processed_task()
     if ( validation_decision == QMessageBox::Yes )
     {
         // actual task validation
-        tm.validate_task(m_selected_task_number);
+        tm.validate_task(m_selected_task_number, m_selected_sub_task_number);
+
+        // re-initializations
+        m_selected_task_number = 0;
+        m_selected_sub_task_number = 0;
 
         // tasks update
         tasks_update();
@@ -750,3 +844,21 @@ void MainWindow::processed_task()
     }
 }
 
+// SLOT code to quit application
+void MainWindow::quit_aplication()
+{
+    // variable initialization
+    int validation_decision = int(0);
+
+    // validation decision
+    validation_decision = QMessageBox::warning(this,
+                                               "Fermeture du programme",
+                                               "Es-tu sûr(e) de vouloir fermer le programme ?",
+                                               QMessageBox::Yes | QMessageBox::No);
+
+    // decision treatment
+    if ( validation_decision == QMessageBox::Yes )
+    {
+        qApp->quit();
+    }
+}

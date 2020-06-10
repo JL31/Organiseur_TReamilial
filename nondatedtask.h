@@ -10,6 +10,7 @@ class NonDatedTask : public BaseTask
 {
     public:
         // Constructor and destructor
+            NonDatedTask();
             NonDatedTask(int const& number,
                          QString const& name,
                          QString const& comments,

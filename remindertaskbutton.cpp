@@ -26,7 +26,7 @@ void ReminderTaskButton::adapt_button_text()
 
     // definition of the button text
     new_texte->append("Rappel de la\n");
-    new_texte->append("tâche n°");
+    new_texte->append("tâche ");
     new_texte->append(QString::number(m_task->get_number()));
     new_texte->append("\n\n");
     new_texte->append("Prévue dans\n");

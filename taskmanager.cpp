@@ -359,37 +359,8 @@ void TaskManager::load_periodic_tasks(QDate const& current_week_date)
         // current periodic task computation
         QDate current_periodic_task_date = QDate(stoi((*it)["YEAR"]), stoi((*it)["MONTH"]), stoi((*it)["DAY"]));
 
-        // periodic task date is after current date
-        if ( ( current_week_date.weekNumber() < current_periodic_task_date.weekNumber() ) and ( current_week_date.year() == current_periodic_task_date.year() ) )
-        {
-            // variables initialization
-            int i = 1;
-            QDate recalculated_date;
-            int recalculated_week_number;
-            int recalculated_year ;
-
-            // date recalculations
-            recalculated_date = current_periodic_task_date.addDays(-7 * stoi((*it)["PERIODICITY"]) * i);
-            recalculated_week_number = recalculated_date.weekNumber();
-            recalculated_year = recalculated_date.year();
-
-            // Iteration while recalculated date is greater than current date
-            while ( recalculated_week_number >= current_week_date.weekNumber() )
-            {
-                if ( recalculated_week_number == current_week_date.weekNumber() )
-                {
-                    add_periodic_task_and_sub_tasks(*it, current_week_date, recalculated_date);
-                }
-
-                // index incrementation and date recalculations
-                i++;
-                recalculated_date = current_periodic_task_date.addDays(-7 * stoi((*it)["PERIODICITY"]) * i);
-                recalculated_week_number = recalculated_date.weekNumber();
-                recalculated_year = recalculated_date.year();
-            }
-        }
-        // periodic task date is before current date
-        else if ( ( current_week_date.weekNumber() > current_periodic_task_date.weekNumber() ) and ( current_week_date.year() == current_periodic_task_date.year() ) )
+        // current date is after periodic task date
+        if ( ( current_week_date.weekNumber() > current_periodic_task_date.weekNumber() ) and ( current_week_date.year() == current_periodic_task_date.year() ) )
         {
             // variables initialization
             int i = 1;
@@ -417,7 +388,7 @@ void TaskManager::load_periodic_tasks(QDate const& current_week_date)
                 recalculated_year = recalculated_date.year();
             }
         }
-        // periodic task date is current date
+        // current date is periodic task date
         else if ( ( current_week_date.weekNumber() == current_periodic_task_date.weekNumber() ) and ( current_week_date.year() == current_periodic_task_date.year() ) )
         {
             QDate recalculated_date = current_periodic_task_date;

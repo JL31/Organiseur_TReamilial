@@ -33,8 +33,9 @@ Les tâches **non datées**, ainsi que les tâches **normales**, peuvent être c
 
 Si tel est le cas une tâche apparaîtra alors dans la partie supérieure de la fenêtre (bandeau des *tâches importantes*).
 
-.. note::
-	Cela vous permettra de rapidement visualiser les tâches à réaliser en priorité, celles-ci étant colorées en orange (dans le bandeau des *tâches importantes* ainsi que dans la partie *calendaire* de la fenêtre).
+.. hint::
+    Cela vous permettra de rapidement visualiser les tâches à réaliser en priorité, celles-ci étant colorées en orange
+    (dans le bandeau des *tâches importantes* ainsi que dans la partie *calendaire* de la fenêtre).
 
 
 Rappels
@@ -45,8 +46,8 @@ Ces rappels apparaîtront en bleu dans la partie *calendaires* de la fenêtre.
 
 Les rappels, ainsi que les tâches importantes figurant dans le bandeau des *tâches importantes*, ne sont pas des tâches à proprement parler.
 
-.. note::
-	On peut double cliquer dessus pour ouvrir une fenêtre de dialogue qui donnera rapidement des informations sur la tâche associée.
+.. hint::
+    On peut double cliquer dessus pour ouvrir une fenêtre de dialogue qui donnera rapidement des informations sur la tâche associée.
 
 
 Tâches périodiques
@@ -68,11 +69,12 @@ Pour ce faire, il suffit de cliquer sur la tâche souhaitée (dans la partie *ca
 La partie gauche de la fenêtre changera alors pour afficher les options associées à la tâche sélectionnée.
 Il faudra alors modifier, selon son choix, puis cliquer sur le bouton **"Modifier la tâche"**.
 
-.. note::
-	Si l'on ne veut pas modifier la tâche sélectionnée (suite, par exemple, à une erreur de manipulation) il suffit de choisir entre les deux options suivantes :
-
-	- cliquer sur une autre tâche (**non datée**, **normale** ou **périodique**),
-	- cliquer sur la tâche déjà sélectionnée.
+.. hint::
+    Si l'on ne veut pas modifier la tâche sélectionnée (suite, par exemple, à une erreur de manipulation)
+    il suffit de choisir entre les deux options suivantes :
+    
+    - cliquer sur une autre tâche (**non datée**, **normale** ou **périodique**),
+    - cliquer sur la tâche déjà sélectionnée.
 
 
 Validation d'une tâche

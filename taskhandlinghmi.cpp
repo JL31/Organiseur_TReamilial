@@ -14,7 +14,7 @@ TaskHandlingHMI::TaskHandlingHMI(QWidget *parent) : QWidget(parent),
 
     ui->de_task_date->setDate(QDate::currentDate());    // initialisation à la date du jour
 
-    // taille de base des boutons cancel et ajouter : 80
+    ui->sb_task_periodicty->setValue(2);
 
     // signals and slots connection
     connections();
@@ -36,6 +36,11 @@ void TaskHandlingHMI::connections() const
 {
     connect(ui->gb_dated_task, SIGNAL(toggled(bool)), this, SLOT(dated_task_selection()));
     connect(ui->le_task_name, SIGNAL(textChanged(QString)), this, SLOT(name_content_length_check(QString)));
+
+    connect(ui->sb_task_periodicty, SIGNAL(valueChanged(int)), this, SLOT(task_periodicity_value_check()));
+    connect(ui->sb_nbr_weeks_before_task, SIGNAL(valueChanged(int)), this, SLOT(task_periodicity_value_check()));
+    connect(ui->gb_periodic_task, SIGNAL(toggled(bool)), this, SLOT(task_periodicity_value_check()));
+    connect(ui->gb_reminder, SIGNAL(toggled(bool)), this, SLOT(task_periodicity_value_check()));
 }
 
 // Code pour initialiser la fenêtre de dialogue en vue de la modification d'une tâche
@@ -200,6 +205,35 @@ void TaskHandlingHMI::name_content_length_check(QString const& text)
         QString message = "Merci d'utiliser moins de 12 caractères pour le premier mot du nom de la tâche";
         QMessageBox::information(this, "Trop de caractères pour le premier mot !", message);
 
-        ui->le_task_name->backspace();  // permet de supprimer le caractère en trop
+        ui->le_task_name->backspace();  // enables to delete the extra character
+    }
+}
+
+// SLOT code to check the value of the number of weeks before task in case of task is periodic and has a reminder
+// the number of weeks before the periodic task must be strictly inferior to the task periodicity
+void TaskHandlingHMI::task_periodicity_value_check()
+{
+    if ( ui->gb_periodic_task->isChecked() and ui->gb_reminder->isChecked() )
+    {
+        if ( ui->sb_nbr_weeks_before_task->value() >= ui->sb_task_periodicty->value() )
+        {
+            if ( ui->sb_task_periodicty->value() > 1 )
+            {
+                QMessageBox::information(this,
+                                         "Incohérence périodicité / nombre de semaines pour le rappel",
+                                         "Le nomre de semaines du rappel ne peut être supérieur ou égal à la périodicité");
+
+                ui->sb_nbr_weeks_before_task->setValue(ui->sb_task_periodicty->value() - 1);
+            }
+            else
+            {
+                QMessageBox::information(this,
+                                         "Incohérence périodicité / nombre de semaines pour le rappel",
+                                         "Une tâche ne peut avoir une périodicité de une semaine ET un rappel");
+
+                ui->sb_task_periodicty->setValue(2);
+                ui->sb_nbr_weeks_before_task->setValue(1);
+            }
+        }
     }
 }

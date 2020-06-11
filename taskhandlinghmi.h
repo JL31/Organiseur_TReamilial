@@ -39,6 +39,7 @@ class TaskHandlingHMI : public QWidget
     public slots:
         void dated_task_selection();
         void name_content_length_check(QString const& text);
+        void task_periodicity_value_check();
 
     private:
         Ui::task_handling_hmi *ui;

@@ -61,6 +61,7 @@ class DatabaseHandler
                                   std::vector<std::map<std::string, std::string>> *data_extraction_from_DB);
         void DB_load_periodic_tasks(std::vector<std::map<std::string, std::string>> *data_extraction_from_DB);
         void DB_prior_step_for_reminder_tasks_loading(std::vector<std::map<std::string, std::string>> *data_extraction_from_DB);
+        void DB_prior_step_for_reminder_periodic_tasks_loading(std::vector<std::map<std::string, std::string>> *periodic_data_extraction_from_DB);
         void DB_reminder_task_loading_from_reminder_task_number(std::string const& reminder_task_number,
                                                                 std::map<std::string, std::string> *data_extraction_from_DB);
 

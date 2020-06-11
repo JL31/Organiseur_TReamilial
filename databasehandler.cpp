@@ -601,8 +601,7 @@ void DatabaseHandler::DB_prior_step_for_reminder_tasks_loading(vector<map<string
     m_sql_request = string();
 
     m_sql_request.append("SELECT NUMBER, DAY, MONTH, YEAR, WEEKS_BEFORE_TASK FROM TASKS\n");
-    m_sql_request.append("WHERE IS_DATED = 1\n");
-    m_sql_request.append("AND REMINDER = 1\n");
+    m_sql_request.append("WHERE REMINDER = 1\n");
     m_sql_request.append("AND IS_PERIODIC = 0\n");
     m_sql_request.append("AND IS_PROCESSED = 0;");
 
@@ -615,6 +614,35 @@ void DatabaseHandler::DB_prior_step_for_reminder_tasks_loading(vector<map<string
     if( m_rc != SQLITE_OK )
     {
         QMessageBox::critical(nullptr, "Récupération préalables des rappels dans la DB", "Problème !");
+        QMessageBox::warning(nullptr, "Détails du message d'erreur lors du traitement avec la BDD", QString::fromStdString(m_zErrMsg));
+        sqlite3_free(m_zErrMsg);
+    }
+
+    // DB closing
+    DB_closing();
+}
+
+
+// Method to load reminders prior data for periodic tasks
+void DatabaseHandler::DB_prior_step_for_reminder_periodic_tasks_loading(vector<map<string, string>> *periodic_data_extraction_from_DB)
+{
+    // request initialization
+    m_sql_request = string();
+
+    m_sql_request.append("SELECT NUMBER, NAME, COMMENTS, DAY, MONTH, YEAR, WEEKS_BEFORE_TASK, PERIODICITY FROM TASKS\n");
+    m_sql_request.append("WHERE REMINDER = 1\n");
+    m_sql_request.append("AND IS_PERIODIC = 1\n");
+    m_sql_request.append("AND IS_PROCESSED = 0;");
+
+    // DB opening
+    DB_opening();
+
+    // DB insertion
+    m_rc = sqlite3_exec(m_database, m_sql_request.c_str(), DB_load_data_tasks_callback, (void*) periodic_data_extraction_from_DB, &m_zErrMsg);
+
+    if( m_rc != SQLITE_OK )
+    {
+        QMessageBox::critical(nullptr, "Récupération préalables des rappels des tâches périodiques dans la DB", "Problème !");
         QMessageBox::warning(nullptr, "Détails du message d'erreur lors du traitement avec la BDD", QString::fromStdString(m_zErrMsg));
         sqlite3_free(m_zErrMsg);
     }

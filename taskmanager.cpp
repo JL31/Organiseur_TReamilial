@@ -400,6 +400,9 @@ void TaskManager::load_periodic_tasks(QDate const& current_week_date)
 // Method to load the reminder tasks
 void TaskManager::load_reminders_list(int const& current_year, int const& current_week_number)
 {
+    // Normal tasks part
+    // -----------------
+
     // attributes initialization
     m_data_extraction_from_DB = new vector<map<string, string>>();
 
@@ -410,25 +413,25 @@ void TaskManager::load_reminders_list(int const& current_year, int const& curren
     vector<int> tmp_reminder_tasks_numbers;
 
     // iteration over the DB extracted data
-    for (auto it = m_data_extraction_from_DB->begin(); it != m_data_extraction_from_DB->end(); it++)
+    for ( auto it : *m_data_extraction_from_DB )
     {
-        QDate tmp_date = QDate(stoi((*it)["YEAR"]), stoi((*it)["MONTH"]), stoi((*it)["DAY"]));
-        tmp_date = tmp_date.addDays(-7 * stoi((*it)["WEEKS_BEFORE_TASK"]));
+        QDate tmp_date = QDate(stoi(it["YEAR"]), stoi(it["MONTH"]), stoi(it["DAY"]));
+        tmp_date = tmp_date.addDays(-7 * stoi(it["WEEKS_BEFORE_TASK"]));
 
         if ( tmp_date.year() == current_year and tmp_date.weekNumber() == current_week_number )
         {
-            tmp_reminder_tasks_numbers.push_back(stoi((*it)["NUMBER"]));
+            tmp_reminder_tasks_numbers.push_back(stoi(it["NUMBER"]));
         }
     }
 
     // iteration over the reminder tasks numbers to add items to reminder tasks list
-    for ( auto it = tmp_reminder_tasks_numbers.begin(); it != tmp_reminder_tasks_numbers.end(); it++ )
+    for ( auto it : tmp_reminder_tasks_numbers )
     {
         // variables initialization
         map<string, string> *m_reminder_data_extraction_from_DB = new map<string, string>();
 
         // reminder data retrieval into database
-        m_db_handler.DB_reminder_task_loading_from_reminder_task_number(to_string(*it), m_reminder_data_extraction_from_DB);
+        m_db_handler.DB_reminder_task_loading_from_reminder_task_number(to_string(it), m_reminder_data_extraction_from_DB);
 
         // creation of a Reminder instance and addition of this instance to the reminder tasks list attribute
         m_reminder_tasks_list.push_back(Reminder(stoi((*m_reminder_data_extraction_from_DB)["NUMBER"]),
@@ -447,12 +450,98 @@ void TaskManager::load_reminders_list(int const& current_year, int const& curren
     // attributes cleaning
     delete m_data_extraction_from_DB;
     m_data_extraction_from_DB = nullptr;
+
+
+    // Periodic tasks part
+    // -------------------
+
+    // attributes initialization
+    m_periodic_data_extraction_from_DB = new vector<map<string, string>>();
+
+    // priori reminder periodic tasks data retrieval into database
+    m_db_handler.DB_prior_step_for_reminder_periodic_tasks_loading(m_periodic_data_extraction_from_DB);
+
+    // iteration over the DB extracted data
+    for ( auto it : *m_periodic_data_extraction_from_DB )
+    {
+        // current periodic task date initialization
+        QDate current_periodic_task_date = QDate(stoi(it["YEAR"]), stoi(it["MONTH"]), stoi(it["DAY"]));
+
+        // current week is earlier to current periodic task date
+        if ( current_week_number < current_periodic_task_date.weekNumber() )
+        {
+            QDate recalculated_current_periodic_task_date = current_periodic_task_date.addDays(-7 * stoi(it["WEEKS_BEFORE_TASK"]));
+
+            if ( recalculated_current_periodic_task_date.weekNumber() == current_week_number )
+            {
+                // creation of a Reminder instance and addition of this instance to the reminder tasks list attribute
+                m_reminder_tasks_list.push_back(Reminder(stoi(it["NUMBER"]),
+                                                         QString::fromStdString(it["NAME"]),
+                                                         QString::fromStdString(it["COMMENTS"]),
+                                                         QDate(recalculated_current_periodic_task_date.year(),
+                                                               recalculated_current_periodic_task_date.month(),
+                                                               recalculated_current_periodic_task_date.day()),
+                                                         stoi(it["WEEKS_BEFORE_TASK"])));
+            }
+        }
+        // current week is later to current periodic task date
+        else if ( current_week_number > current_periodic_task_date.weekNumber() )
+        {
+            // reminder current periodic task date calculation
+            QDate reminder_current_periodic_task_date = current_periodic_task_date.addDays(7 * stoi(it["WEEKS_BEFORE_TASK"]));
+
+            // current reminder week number fits current week number
+            if ( reminder_current_periodic_task_date.weekNumber() == current_week_number )
+            {
+                // creation of a Reminder instance and addition of this instance to the reminder tasks list attribute
+                m_reminder_tasks_list.push_back(Reminder(stoi(it["NUMBER"]),
+                                                         QString::fromStdString(it["NAME"]),
+                                                         QString::fromStdString(it["COMMENTS"]),
+                                                         QDate(reminder_current_periodic_task_date.year(),
+                                                               reminder_current_periodic_task_date.month(),
+                                                               reminder_current_periodic_task_date.day()),
+                                                         stoi(it["WEEKS_BEFORE_TASK"])));
+            }
+            // current reminder week number DOES NOT fits current week number
+            else
+            {
+                // loop while current reminder week number becomes greater than current week number
+                while ( current_week_number > reminder_current_periodic_task_date.weekNumber() )
+                {
+                    // variable initialization
+                    int i(1);
+
+                    // recalculation of current reminder date with current periodic task periodicity
+                    reminder_current_periodic_task_date = reminder_current_periodic_task_date.addDays(7 * stoi(it["PERIODICITY"]) * i);
+
+                    if ( reminder_current_periodic_task_date.weekNumber() == current_week_number )
+                    {
+                        // creation of a Reminder instance and addition of this instance to the reminder tasks list attribute
+                        m_reminder_tasks_list.push_back(Reminder(stoi(it["NUMBER"]),
+                                                                 QString::fromStdString(it["NAME"]),
+                                                                 QString::fromStdString(it["COMMENTS"]),
+                                                                 QDate(reminder_current_periodic_task_date.year(),
+                                                                       reminder_current_periodic_task_date.month(),
+                                                                       reminder_current_periodic_task_date.day()),
+                                                                 stoi(it["WEEKS_BEFORE_TASK"])));
+                    }
+
+                    // "week" incrementation
+                    i++;
+                }
+            }
+        }
+    }
+
+    // attributes cleaning
+    delete m_periodic_data_extraction_from_DB;
+    m_periodic_data_extraction_from_DB = nullptr;
 }
 
 // Method to load the important tasks
 void TaskManager::load_important_tasks_list(int const& current_year, int const& current_week_number)
 {
-    // creation of a BaseTask instance and addition of this instance to the important tasks list attribute
+    // normal tasks - creation of a BaseTask instance and addition of this instance to the important tasks list attribute
     for (auto it = m_normal_tasks_list.begin(); it != m_normal_tasks_list.end(); it++)
     {
         if ( ( it->second.get_date().year() == current_year ) and
@@ -467,13 +556,10 @@ void TaskManager::load_important_tasks_list(int const& current_year, int const& 
         }
     }
 
-    /*
-     * // ...
+     // periodic tasks - creation of a BaseTask instance and addition of this instance to the important tasks list attribute
     for (auto it = m_periodic_tasks_list.begin(); it != m_periodic_tasks_list.end(); it++)
     {
-        if ( ( it->second.get_date().year() == current_year ) and
-             ( it->second.get_date().weekNumber() == current_week_number ) and
-               it->second.get_is_important() )
+        if ( it->second.get_is_important() )
         {
             m_important_tasks_list.push_back(BaseTask(it->second.get_number(),
                                                       it->second.get_name(),
@@ -482,7 +568,6 @@ void TaskManager::load_important_tasks_list(int const& current_year, int const& 
                                             );
         }
     }
-    */
 
     // important tasks list filling-in with important non dated tasks
     for (auto it = m_non_dated_tasks_list.begin(); it != m_non_dated_tasks_list.end(); it++)

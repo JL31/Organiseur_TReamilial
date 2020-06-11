@@ -54,7 +54,14 @@ void PeriodicTaskButton::adapt_button_text()
 // Method that enables to change the color button
 void PeriodicTaskButton::set_button_color()
 {
-    this->setStyleSheet("background-color:rgb(255, 255, 10)");
+    if ( m_task->get_is_important() )
+    {
+        this->setStyleSheet("background-color:orange");
+    }
+    else
+    {
+        this->setStyleSheet("background-color:rgb(255, 255, 10)");
+    }
 }
 
 

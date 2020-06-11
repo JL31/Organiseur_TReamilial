@@ -81,6 +81,7 @@ class TaskManager
 
             DatabaseHandler m_db_handler;
             std::vector<std::map<std::string, std::string>> *m_data_extraction_from_DB;
+            std::vector<std::map<std::string, std::string>> *m_periodic_data_extraction_from_DB;
 
             bool m_database_folder_automatically_initiated;
 };

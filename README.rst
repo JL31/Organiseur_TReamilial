@@ -33,7 +33,7 @@ Les tâches **non datées**, ainsi que les tâches **normales**, peuvent être c
 
 Si tel est le cas une tâche apparaîtra alors dans la partie supérieure de la fenêtre (bandeau des *tâches importantes*).
 
-.. hint::
+.. note::
     Cela vous permettra de rapidement visualiser les tâches à réaliser en priorité, celles-ci étant colorées en orange
     (dans le bandeau des *tâches importantes* ainsi que dans la partie *calendaire* de la fenêtre).
 
@@ -46,7 +46,7 @@ Ces rappels apparaîtront en bleu dans la partie *calendaires* de la fenêtre.
 
 Les rappels, ainsi que les tâches importantes figurant dans le bandeau des *tâches importantes*, ne sont pas des tâches à proprement parler.
 
-.. hint::
+.. note::
     On peut double cliquer dessus pour ouvrir une fenêtre de dialogue qui donnera rapidement des informations sur la tâche associée.
 
 
@@ -69,7 +69,7 @@ Pour ce faire, il suffit de cliquer sur la tâche souhaitée (dans la partie *ca
 La partie gauche de la fenêtre changera alors pour afficher les options associées à la tâche sélectionnée.
 Il faudra alors modifier, selon son choix, puis cliquer sur le bouton **"Modifier la tâche"**.
 
-.. hint::
+.. note::
     Si l'on ne veut pas modifier la tâche sélectionnée (suite, par exemple, à une erreur de manipulation)
     il suffit de choisir entre les deux options suivantes :
     

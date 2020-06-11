@@ -606,45 +606,6 @@ suivante</string>
    <addaction name="menu_Menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="action_Ajouter_une_tache">
-   <property name="icon">
-    <iconset resource="icones.qrc">
-     <normaloff>:/icones/icones/ajouter.png</normaloff>:/icones/icones/ajouter.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Ajouter une tâche</string>
-   </property>
-   <property name="shortcut">
-    <string>Alt+A</string>
-   </property>
-  </action>
-  <action name="action_Modifier_une_tache">
-   <property name="icon">
-    <iconset resource="icones.qrc">
-     <normaloff>:/icones/icones/modifier.png</normaloff>:/icones/icones/modifier.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Modifier une tâche</string>
-   </property>
-   <property name="shortcut">
-    <string>Alt+M</string>
-   </property>
-  </action>
-  <action name="action_Valider_une_tache">
-   <property name="icon">
-    <iconset resource="icones.qrc">
-     <normaloff>:/icones/icones/valider.png</normaloff>:/icones/icones/valider.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Valider une tâche</string>
-   </property>
-   <property name="toolTip">
-    <string>Valider une tâche</string>
-   </property>
-   <property name="shortcut">
-    <string>Alt+V</string>
-   </property>
-  </action>
   <action name="action_Quitter">
    <property name="icon">
     <iconset resource="icones.qrc">
@@ -652,6 +613,9 @@ suivante</string>
    </property>
    <property name="text">
     <string>&amp;Quitter</string>
+   </property>
+   <property name="shortcut">
+    <string>Esc</string>
    </property>
   </action>
  </widget>

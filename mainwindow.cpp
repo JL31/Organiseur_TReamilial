@@ -47,7 +47,7 @@ MainWindow::MainWindow(QString const& database_complete_path,
 {
     // HMI global initializations
     ui->setupUi(this);
-    ui->action_Quitter->setShortcuts({ tr("Alt+Q"), tr("Esc") });
+    ui->action_Quitter->setShortcuts({ tr("Esc") });
 
     // months mapping initialization
     i_to_s_month[1] = "janvier";

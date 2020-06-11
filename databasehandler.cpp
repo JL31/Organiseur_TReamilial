@@ -394,6 +394,37 @@ void DatabaseHandler::DB_periodic_sub_tasks_table_creation(string const& last_ad
 }
 
 
+// Method to update sub tasks table during periodic task modification
+void DatabaseHandler::DB_update_sub_tasks_table(string const& task_number)
+{
+    // request initialization
+    string sub_tasks_table_name = "PERIODIC_TASK_" + task_number +  "_SUB_TASKS";
+
+    m_sql_request = string();
+    m_sql_request.append("DELETE FROM ");
+    m_sql_request.append(sub_tasks_table_name);
+    m_sql_request.append(" WHERE IS_PROCESSED = 0;");
+
+    // DB opening
+    DB_opening();
+
+    // DB insertion
+    m_rc = sqlite3_exec(m_database, m_sql_request.c_str(), dummy_callback, 0, &m_zErrMsg);
+
+    if( m_rc != SQLITE_OK )
+    {
+        QMessageBox::information(nullptr,
+                                 "Suppression des sous-tâches non validées asociée à la tâche n°" + QString::fromStdString(task_number) + " dans la DB",
+                                 "Problème");
+        QMessageBox::warning(nullptr, "Détails du message d'erreur lors du traitement avec la BDD", QString::fromStdString(m_zErrMsg));
+        sqlite3_free(m_zErrMsg);
+    }
+
+    // DB closing
+    DB_closing();
+}
+
+
 // DB_task_data_retrieval_callback callback function
 static int DB_task_data_retrieval_callback(void *data_from_DB, int argc, char **argv, char **azColName)
 {
@@ -944,7 +975,7 @@ int DatabaseHandler::DB_get_number_of_sub_tasks(string sub_tasks_table_name,
 }
 
 
-// ...
+// Method to add a sub task to a periodic task
 int DatabaseHandler::add_sub_task_to_periodic_task(string current_day,
                                                    string current_month,
                                                    string current_year,

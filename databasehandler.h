@@ -50,6 +50,7 @@ class DatabaseHandler
                                   std::string const& periodicity);
 
         void DB_periodic_sub_tasks_table_creation(std::string const& last_added_task_number);
+        void DB_update_sub_tasks_table(std::string const& task_number);
 
         void DB_task_validation(std::string const& task_number);
         void DB_sub_task_validation(std::string const& task_number,

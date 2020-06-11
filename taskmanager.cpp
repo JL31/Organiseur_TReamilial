@@ -93,6 +93,7 @@ void TaskManager::modify_task(int const& number,
     if ( is_periodic )
     {
         m_db_handler.DB_periodic_sub_tasks_table_creation(to_string(number));
+        m_db_handler.DB_update_sub_tasks_table(to_string(number));
     }
 }
 
